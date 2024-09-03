@@ -1,9 +1,9 @@
 //creates a tree from the trace file
 #include <stdio.h>
 #include <stdlib.h>
-#include "tracereader.h"
-#include "log.h"
-#include "page_table.h"
+#include "lib/tracereader.h"
+#include "lib/log.h"
+#include "page_table/page_table.h"
 
 int main(int argc, char** argv) {
 
