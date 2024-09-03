@@ -1,5 +1,3 @@
-#include <stdio.h>
-#include <stdlib.h>
 #include "page_table.h"
 
 //create a new node
@@ -8,10 +6,6 @@ node* create_node(int address, int children_count) {
     new_node->address = address;
     new_node->children = (node**)malloc((int)sizeof(node*) * children_count);
     return new_node;
-}
-
-node* build_tree(page_table* table, int address, int depth) {
-    node* current = table->root;
 }
 
 //create a new page table
