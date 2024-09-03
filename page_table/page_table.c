@@ -3,7 +3,8 @@
 node* create_node(int address, int children_count) {
     node* new_node = (node*)malloc((int)sizeof(node));
     new_node->address = address;
-    new_node->children = (node**)malloc((int)sizeof(node*) * children_count);
+    new_node->children = (node**)calloc((int)sizeof(node*), children_count);
+    new_node->times_accessed = 1;
     return new_node;
 }
 
@@ -38,7 +39,6 @@ uint32_t record_page_access(page_table* table, node* root, uint32_t* page_indice
     uint32_t index = page_indices[at_level];
     if (current->children[index] == NULL) {
         current->children[index] = create_node(index, table->entry_count[at_level]);
-        current->children[index]->times_accessed = 1;
     }
     current = current->children[index];
     return record_page_access(table, current, page_indices, at_level + 1, depth);
