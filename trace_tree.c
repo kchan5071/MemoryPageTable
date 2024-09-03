@@ -51,7 +51,9 @@ uint32_t* create_bit_masks(uint32_t* levels, int depth) {
 
 uint32_t* create_shifts(uint32_t* levels, int depth, uint32_t* bitmasks) {
     uint32_t* shifts = (uint32_t*)malloc((int)sizeof(int) * depth);
+    //shift for 32int
     int shift = 32;
+    //shift each level more and more
     for (int i = 0; i < depth; i++) {
         shift -= levels[i];
         shifts[i] = shift;
@@ -60,15 +62,10 @@ uint32_t* create_shifts(uint32_t* levels, int depth, uint32_t* bitmasks) {
 }
 
 page_table* build_page_table(char** argv, int depth) {
+    //get levels, bitmasks, shifts, and entry counts
     uint32_t* levels = get_levels(argv, depth);
-
-    //get offsets
     uint32_t* bitmasks = create_bit_masks(levels, depth);
-
-    //get shifts
     uint32_t* shifts = create_shifts(levels, depth, bitmasks);
-
-    //get entry count per layer
     uint32_t* entry_counts = calculate_entry_count(levels, depth);
 
     //create page table

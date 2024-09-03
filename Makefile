@@ -5,18 +5,18 @@ compile:
 	gcc -c trace_tree.c -o trace_tree.o
 	gcc -c log.c -o log.o
 	gcc -c page_table.c -o page_table.o
-	gcc trace_tree.o tracereader.o log.o page_table.o -o trace_tree 
+	gcc trace_tree.o tracereader.o log.o page_table.o -o pagetrace
 
 run:
-	./trace_tree trace.tr 4 8 8
+	./pagetrace trace.tr 4 8 8
 
-rc:
+compile_run:
 	make clean
 	make compile
 	make run
 	make clean
 
 clean:
-	rm -f trace_tree 
+	rm -f pagetrace 
 	rm -f *.o
 
