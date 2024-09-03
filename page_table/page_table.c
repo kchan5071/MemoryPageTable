@@ -1,6 +1,5 @@
 #include "page_table.h"
 
-//create a new node
 node* create_node(int address, int children_count) {
     node* new_node = (node*)malloc((int)sizeof(node));
     new_node->address = address;
@@ -8,7 +7,6 @@ node* create_node(int address, int children_count) {
     return new_node;
 }
 
-//create a new page table
 page_table* init_page_table(uint32_t* levels, uint32_t* bitmask, uint32_t* shift, uint32_t* entry_counts, int depth) {
     page_table* new_table = (page_table*)malloc((int)sizeof(page_table));
     new_table->root = create_node(0, entry_counts[0]);
