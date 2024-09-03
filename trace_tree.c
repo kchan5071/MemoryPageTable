@@ -1,8 +1,6 @@
 //creates a tree from the trace file
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
-#include <math.h>
 #include "tracereader.h"
 #include "log.h"
 #include "page_table.h"
@@ -20,7 +18,7 @@ uint32_t* get_levels(char** output, int length) {
 uint32_t* calculate_entry_count(uint32_t* levels, int depth) {
     uint32_t* entry_count = (uint32_t*)malloc((int)sizeof(int) * depth);
     for (int i = 0; i < depth; i++) {
-        entry_count[i] = pow(2, levels[i]);
+        entry_count[i] = 1 << levels[i];
     }
     return entry_count;
 }
