@@ -1,3 +1,4 @@
 #ignore .o files
 *.o
 
+.vscode
