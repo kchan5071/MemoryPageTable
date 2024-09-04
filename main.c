@@ -19,7 +19,7 @@ int main(int argc, char** argv) {
 
     //create trace file and trace struct
     FILE *trace_file = fopen(filename, "r");
-    p2AddrTr trace;
+    p2AddrTr trace = {0};
 
     //loop through all addresses
     int address = -1;
