@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <stdint.h>
 
 uint32_t* get_levels(char** output, int length);
 

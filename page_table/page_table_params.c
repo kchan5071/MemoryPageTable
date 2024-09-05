@@ -1,5 +1,13 @@
 #include "page_table_params.h"
 
+
+/*
+* takes argv and depth of table as an input
+
+* returns an array of levels
+* levels are the number of bits used to index each level of the page table
+*
+*/
 uint32_t* get_levels(char** output, int length) {
     uint32_t* levels = (uint32_t*)calloc((int)sizeof(int), length);
     for (int i = 0; i < length; i++) {

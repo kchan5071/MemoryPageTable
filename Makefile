@@ -1,4 +1,4 @@
-compile:
+pagetrace:
 # create output files
 # lib contains code not written by me
 	gcc -c lib/tracereader.c -o tracereader.o
@@ -18,7 +18,7 @@ run:
 
 compile_run:
 	make clean
-	make compile
+	make pagetrace
 	make run
 	make clean
 
