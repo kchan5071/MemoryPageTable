@@ -30,17 +30,16 @@ uint32_t* calculate_entry_count(uint32_t* levels, int depth) {
     return entry_count;
 }
 
-uint32_t* get_page_indices(int address, uint32_t* levels, uint32_t* shifts, int depth) {
+uint32_t* get_page_indices(int address, uint32_t* bitmasks, uint32_t* shifts, int depth) {
     uint32_t* indices = (uint32_t*)calloc((int)sizeof(int), depth);
-    int shift = 0;
-    shift = levels[depth - 1];
     for (int i = 0; i < depth; i++) {
-        int mask = 0;
-        mask = (1 << levels[i]) - 1;
-        indices[i] = (address >> shifts[i]) & mask;
-        shift -= levels[i];
+        indices[i] = extract_page_number_from_address(address, bitmasks[i], shifts[i]);
     }
     return indices;
+}
+
+uint32_t extract_page_number_from_address(uint32_t address, uint32_t bitmask, uint32_t shift) {
+    return (address & bitmask) >> shift;
 }
 
 uint32_t* create_bit_masks(uint32_t* levels, int depth) {
@@ -56,10 +55,10 @@ uint32_t* create_bit_masks(uint32_t* levels, int depth) {
     return offsets;
 }
 
-uint32_t* create_shifts(uint32_t* levels, int depth, uint32_t* bitmasks) {
+uint32_t* create_shifts(uint32_t* levels, int depth) {
     uint32_t* shifts = (uint32_t*)calloc((int)sizeof(int), depth);
     //shift for 32int
-    int shift = 32;
+    uint32_t shift = 32;
     //shift each level more and more
     for (int i = 0; i < depth; i++) {
         shift -= levels[i];

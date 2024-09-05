@@ -26,7 +26,7 @@ int main(int argc, char** argv) {
     int address = -1;
     while (address != 0) {
         address = NextAddress(trace_file, &trace);
-        uint32_t* indices = get_page_indices(trace.addr, table->levels, table->shift, depth);
+        uint32_t* indices = get_page_indices(trace.addr, table->bitmask, table->shift, depth);
         int times_accessed = record_page_access(table, table->root, indices, 0, depth);
         //log accesses
         log_pgindices_numofaccesses(trace.addr, depth, indices, times_accessed);

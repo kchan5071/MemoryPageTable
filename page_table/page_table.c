@@ -22,7 +22,7 @@ page_table* build_page_table(char** argv, int* depth) {
     //get levels, bitmasks, shifts, and entry counts
     uint32_t* levels = get_levels(argv, depth);
     uint32_t* bitmasks = create_bit_masks(levels, *depth);
-    uint32_t* shifts = create_shifts(levels,*depth, bitmasks);
+    uint32_t* shifts = create_shifts(levels, *depth);
     uint32_t* entry_counts = calculate_entry_count(levels, *depth);
 
     //create page table
