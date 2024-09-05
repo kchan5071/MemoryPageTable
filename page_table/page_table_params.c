@@ -1,6 +1,5 @@
 #include "page_table_params.h"
 
-
 /*
 * takes argv and depth of table as an input
 
@@ -8,11 +7,18 @@
 * levels are the number of bits used to index each level of the page table
 *
 */
-uint32_t* get_levels(char** output, int length) {
-    uint32_t* levels = (uint32_t*)calloc((int)sizeof(int), length);
-    for (int i = 0; i < length; i++) {
-        levels[i] = atoi(output[i + 2]);
+uint32_t* get_levels(char** output, int* length) {
+    // *length = (int)(sizeof(output[2]) / sizeof(char)) / 2 - 1;
+    uint32_t* levels = (uint32_t*)calloc((int)sizeof(int), 32 * 4);
+    char* level_char = output[2];
+    char* token = strtok(level_char, " ");
+    int i = 0;
+    while (token != NULL) {
+        levels[i] = atoi(token);
+        token = strtok(NULL, " ");
+        i++;
     }
+    *length = i;
     return levels;
 }
 

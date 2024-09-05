@@ -1,8 +1,11 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdint.h>
+#include <string.h>
+#include <math.h>
 
-uint32_t* get_levels(char** output, int length);
+
+uint32_t* get_levels(char** output, int* length);
 
 uint32_t* calculate_entry_count(uint32_t* levels, int depth);
 

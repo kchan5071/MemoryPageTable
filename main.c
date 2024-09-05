@@ -10,10 +10,10 @@ int main(int argc, char** argv) {
 
     //read args
     char *filename = argv[1];
-    int depth = argc - 2;
+    int depth = 0;
 
     //create page table
-    page_table* table = build_page_table(argv, depth);
+    page_table* table = build_page_table(argv, &depth);
 
     //log bitmasks
     log_bitmasks(depth, table->bitmask);
