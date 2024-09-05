@@ -1,5 +1,7 @@
 #include "page_table_params.h"
 
+
+#define BIT_SIZE 32
 /** 
  * @brief: get the levels of the page table from the command line arguments
  * 
@@ -84,7 +86,7 @@ uint32_t extract_page_number_from_address(uint32_t address, uint32_t bitmask, ui
  */
 uint32_t* create_bit_masks(uint32_t* levels, int depth) {
     uint32_t* offsets = (uint32_t*)calloc((int)sizeof(int), depth);
-    int offset = 32;
+    int offset = BIT_SIZE;
     for (int i = 0; i < depth; i++) {
         offset -= levels[i];
         offsets[i] = 0;
@@ -105,7 +107,7 @@ uint32_t* create_bit_masks(uint32_t* levels, int depth) {
  */
 uint32_t* create_shifts(uint32_t* levels, int depth) {
     uint32_t* shifts = (uint32_t*)calloc((int)sizeof(int), depth);
-    uint32_t shift = 32;
+    uint32_t shift = BIT_SIZE;
     for (int i = 0; i < depth; i++) {
         shift -= levels[i];
         shifts[i] = shift;
