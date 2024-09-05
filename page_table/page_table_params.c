@@ -7,18 +7,23 @@
 * levels are the number of bits used to index each level of the page table
 *
 */
-uint32_t* get_levels(char** output, int* length) {
-    // *length = (int)(sizeof(output[2]) / sizeof(char)) / 2 - 1;
-    uint32_t* levels = (uint32_t*)calloc((int)sizeof(int), 32 * 4);
-    char* level_char = output[2];
+uint32_t* get_levels(char** argv, int* depth) {
+    // *depth = (int)(sizeof(argv[2]) / sizeof(char)) / 2 - 1;
+    char** token_character_array = (char**)calloc((int)sizeof(int), 32 * 4);
+    char* level_char = argv[2];
     char* token = strtok(level_char, " ");
-    int i = 0;
+    int level_count = 0;
     while (token != NULL) {
-        levels[i] = atoi(token);
+        token_character_array[level_count] = (token);
         token = strtok(NULL, " ");
-        i++;
+        level_count++;
     }
-    *length = i;
+    *depth = level_count;
+
+    uint32_t* levels = (uint32_t*)calloc((int)sizeof(int), *depth);
+    for (int j = 0; j < *depth; j++) {
+        levels[j] = atoi(token_character_array[j]);
+    }
     return levels;
 }
 
@@ -57,9 +62,7 @@ uint32_t* create_bit_masks(uint32_t* levels, int depth) {
 
 uint32_t* create_shifts(uint32_t* levels, int depth) {
     uint32_t* shifts = (uint32_t*)calloc((int)sizeof(int), depth);
-    //shift for 32int
     uint32_t shift = 32;
-    //shift each level more and more
     for (int i = 0; i < depth; i++) {
         shift -= levels[i];
         shifts[i] = shift;

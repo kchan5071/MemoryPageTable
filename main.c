@@ -24,8 +24,7 @@ int main(int argc, char** argv) {
 
     //loop through all addresses
     int address = -1;
-    while (address != 0) {
-        address = NextAddress(trace_file, &trace);
+    while (NextAddress(trace_file, &trace)) {
         uint32_t* indices = get_page_indices(trace.addr, table->bitmask, table->shift, depth);
         int times_accessed = record_page_access(table, table->root, indices, 0, depth);
         //log accesses
