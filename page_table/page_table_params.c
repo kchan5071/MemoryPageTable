@@ -1,14 +1,14 @@
 #include "page_table_params.h"
 
-/*
-* takes argv and depth of table as an input
-
-* returns an array of levels
-* levels are the number of bits used to index each level of the page table
-*
-*/
 uint32_t* get_levels(char** argv, int* depth) {
-    // *depth = (int)(sizeof(argv[2]) / sizeof(char)) / 2 - 1;
+    /** 
+     * @brief: get the levels of the page table from the command line arguments
+     * 
+    * @param argv: the command line arguments
+    * @param depth: pointer to the number of levels in the page table
+    * 
+    * @return: array that stores the number of bits at each level of the page table
+    */
     char** token_character_array = (char**)calloc((int)sizeof(int), 32 * 4);
     char* level_char = argv[2];
     char* token = strtok(level_char, " ");
@@ -28,6 +28,14 @@ uint32_t* get_levels(char** argv, int* depth) {
 }
 
 uint32_t* calculate_entry_count(uint32_t* levels, int depth) {
+    /**
+     * @brief: calculate the number of entries at each level of the page table
+     * 
+     * @param levels: pointer to array that stores the number of bits at each level of the page table
+     * @param depth: the number of levels in the page table
+     * 
+     * @return: array that stores the number of entries at each level of the page table
+     */
     uint32_t* entry_count = (uint32_t*)calloc((int)sizeof(int), depth);
     for (int i = 0; i < depth; i++) {
         entry_count[i] = 1 << levels[i];
@@ -36,6 +44,16 @@ uint32_t* calculate_entry_count(uint32_t* levels, int depth) {
 }
 
 uint32_t* get_page_indices(int address, uint32_t* bitmasks, uint32_t* shifts, int depth) {
+    /**
+     * @brief: extract the page indices from the address
+     * 
+     * @param address: the address to extract the page indices from
+     * @param bitmasks: pointer to array that stores the bitmasks for each level of the page table
+     * @param shifts: pointer to array that stores the shifts for each level of the page table
+     * @param depth: the number of levels in the page table
+     * 
+     * @return: array that stores the page indices
+     */
     uint32_t* indices = (uint32_t*)calloc((int)sizeof(int), depth);
     for (int i = 0; i < depth; i++) {
         indices[i] = extract_page_number_from_address(address, bitmasks[i], shifts[i]);
@@ -44,10 +62,27 @@ uint32_t* get_page_indices(int address, uint32_t* bitmasks, uint32_t* shifts, in
 }
 
 uint32_t extract_page_number_from_address(uint32_t address, uint32_t bitmask, uint32_t shift) {
+    /**
+     * @brief: extract the page number from the address given the input
+     * 
+     * @param address: the address to extract the page number from
+     * @param bitmask: the bitmask to apply to the address
+     * @param shift: the shift to apply to the address
+     * 
+     * @return: the page number index
+     */
     return (address & bitmask) >> shift;
 }
 
 uint32_t* create_bit_masks(uint32_t* levels, int depth) {
+    /**
+     * @brief: create the bitmasks for each level of the page table
+     * 
+     * @param levels: pointer to array that stores the number of bits at each level of the page table
+     * @param depth: the number of levels in the page table
+     * 
+     * @return: array that stores the bitmasks for each level of the page table
+     */
     uint32_t* offsets = (uint32_t*)calloc((int)sizeof(int), depth);
     int offset = 32;
     for (int i = 0; i < depth; i++) {
@@ -61,6 +96,14 @@ uint32_t* create_bit_masks(uint32_t* levels, int depth) {
 }
 
 uint32_t* create_shifts(uint32_t* levels, int depth) {
+    /**
+     * @brief: create the shifts for each level of the page table
+     * 
+     * @param levels: pointer to array that stores the number of bits at each level of the page table
+     * @param depth: the number of levels in the page table
+     * 
+     * @return: array that stores the shifts for each level of the page table
+     */
     uint32_t* shifts = (uint32_t*)calloc((int)sizeof(int), depth);
     uint32_t shift = 32;
     for (int i = 0; i < depth; i++) {
