@@ -15,10 +15,11 @@
 * @return: array that stores the number of bits at each level of the page table
 */
 uint32_t* get_levels(char** argv, int* depth) {
-    char** token_character_array = (char**)calloc((int)sizeof(int), 32 * 4);
+    char** token_character_array = (char**)calloc((int)sizeof(int), 32 * 8); //32 * 8 is maximum amount of levels in 32 bit address
     char* level_char = argv[2];
     char* token = strtok(level_char, " ");
     int level_count = 0;
+    //parse the levels, keep track of the number of levels
     while (token != NULL) {
         token_character_array[level_count] = (token);
         token = strtok(NULL, " ");
@@ -26,6 +27,7 @@ uint32_t* get_levels(char** argv, int* depth) {
     }
     *depth = level_count;
 
+    //convert the levels to integers
     uint32_t* levels = (uint32_t*)calloc((int)sizeof(int), *depth);
     for (int j = 0; j < *depth; j++) {
         levels[j] = atoi(token_character_array[j]);
@@ -61,6 +63,7 @@ uint32_t* calculate_entry_count(uint32_t* levels, int depth) {
  */
 uint32_t* get_page_indices(int address, uint32_t* bitmasks, uint32_t* shifts, int depth) {
     uint32_t* indices = (uint32_t*)calloc((int)sizeof(int), depth);
+    //for each level, extract the page number
     for (int i = 0; i < depth; i++) {
         indices[i] = extract_page_number_from_address(address, bitmasks[i], shifts[i]);
     }
@@ -91,9 +94,11 @@ uint32_t extract_page_number_from_address(uint32_t address, uint32_t bitmask, ui
 uint32_t* create_bit_masks(uint32_t* levels, int depth) {
     uint32_t* offsets = (uint32_t*)calloc((int)sizeof(int), depth);
     int offset = BIT_SIZE;
+    //for each level, create the bitmask
     for (int i = 0; i < depth; i++) {
         offset -= levels[i];
         offsets[i] = 0;
+        //set the bits at the offset
         for (int j = 0; j < levels[i]; j++) {
             offsets[i] |= 1 << (offset + j);
         }
@@ -112,6 +117,7 @@ uint32_t* create_bit_masks(uint32_t* levels, int depth) {
 uint32_t* create_shifts(uint32_t* levels, int depth) {
     uint32_t* shifts = (uint32_t*)calloc((int)sizeof(int), depth);
     uint32_t shift = BIT_SIZE;
+    //for each level, create the shift
     for (int i = 0; i < depth; i++) {
         shift -= levels[i];
         shifts[i] = shift;

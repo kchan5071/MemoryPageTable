@@ -4,11 +4,11 @@
 pagetrace:
 # create output files
 # lib contains code not written by me
-	gcc -c lib/tracereader.c -o tracereader.o
-	gcc -c lib/log.c -o log.o
+	gcc -c tracereader.c -o tracereader.o
+	gcc -c log.c -o log.o
 # page_table contains the specific page_table implementation
-	gcc -c page_table/page_table.c -o page_table.o
-	gcc -c page_table/page_table_params.c -o page_table_params.o
+	gcc -c page_table.c -o page_table.o
+	gcc -c page_table_params.c -o page_table_params.o
 
 # main file
 	gcc -c main.c -o main.o

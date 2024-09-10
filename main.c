@@ -1,9 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "lib/tracereader.h"
-#include "lib/log.h"
-#include "page_table/page_table.h"
+#include "tracereader.h"
+#include "log.h"
+#include "page_table.h"
 
 /**
  * Kai Chan 
