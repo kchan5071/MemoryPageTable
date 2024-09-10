@@ -1,5 +1,9 @@
 #include "page_table_params.h"
 
+/**
+ * Kai Chan 
+ * 827673009
+ */
 
 #define BIT_SIZE 32
 /** 
