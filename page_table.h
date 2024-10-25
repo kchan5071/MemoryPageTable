@@ -27,7 +27,7 @@ typedef struct page_table {
 
 typedef struct address_time_pair {
     uint32_t address;
-    int times_accessed;
+    int time_accessed;
 } address_time_pair;
 
 

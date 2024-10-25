@@ -60,9 +60,6 @@ page_table* build_page_table(char** argv, int* depth, int* depth_array) {
 
     //create page table
     page_table* table = init_page_table(depth_array, bitmasks, shifts, entry_counts, *depth);
-    for (int i = 0; i < *depth; i++) {
-        printf("Level %d: %d bits, %d entries, bitmask: %d, shift: %d\n", i, depth_array[i], entry_counts[i], bitmasks[i], shifts[i]);
-    }
     return table;
 }
 
