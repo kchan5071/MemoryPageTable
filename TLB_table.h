@@ -1,6 +1,9 @@
 #ifndef TBL_table_H
-#define TLB_table_H
+#define TBL_table_H
+
 #include <stdbool.h>
+#include <stdlib.h>
+#include <stdio.h>
 
 typedef struct TLB_entry
 {
@@ -20,5 +23,7 @@ void add_to_table(TLB_table *tlb, int addr, int frame);
 void delete_from_table(TLB_table *tlb, int addr);
 int get_frame_number(TLB_table *tlb, int addr);
 bool table_full(TLB_table *tlb);
+
+void print_table(TLB_table *tlb);
 
 #endif

@@ -6,6 +6,7 @@
 #include "tracereader.h"
 #include "log.h"
 #include "page_table.h"
+#include "TLB_table.h"
 
 /**
  * Kai Chan
@@ -143,10 +144,11 @@ int main(int argc, char **argv)
     check_for_validity(depth_array, depth);
 
     //create page table
-    page_table* table = build_page_table(argv, &depth, depth_array);
+    page_table* page_table = build_page_table(argv, &depth, depth_array);
 
-    // log bitmasks
-    log_bitmasks(depth, table->bitmask);
+    //create TLB table
+    TLB_table* tlb = create_table(args->cache_capacity);
+
 
     // create trace file and trace struct
     p2AddrTr trace = {0};
@@ -159,8 +161,14 @@ int main(int argc, char **argv)
     long max = 0;
 
     while (NextAddress(trace_file, &trace)) {
-        uint32_t* indices = get_page_indices(trace.addr, table->bitmask, table->shift, depth);
-        address_time_pair pair = record_page_access(table, table->root, indices, 0, depth, iteration);
+        uint32_t* indices = get_page_indices(trace.addr, page_table->bitmask, page_table->shift, depth);
+        address_time_pair pair = record_page_access(page_table, page_table->root, indices, 0, depth, iteration);
+        //check if the address is in the TLB
+        int frame = get_frame_number(tlb, trace.addr);
+        if (frame == -1) {
+            //add to TLB
+            // add_to_table(tlb, trace.addr, pair.address);
+        }
         if (pair.time_accessed != iteration) {
             hits++;
         }
@@ -170,13 +178,15 @@ int main(int argc, char **argv)
         //log accesses
         iteration++;
     }
-    printf("hits: %ld\n", hits);
-    printf("iteration: %ld\n", iteration);
+
+    // printf("hits: %ld\n", hits);
+    // printf("iteration: %ld\n", iteration);
     float hit_percent = (float)hits / (float)iteration;
     float miss_percent = 1 - hit_percent;
-    printf("hit_percent: %f\n", hit_percent);
-    printf("miss_percent: %f\n", miss_percent);
-    log_summary(4096, hits, iteration - hits, iteration, 0, max);
+    // printf("hit_percent: %f\n", hit_percent);
+    // printf("miss_percent: %f\n", miss_percent);
+    print_table(tlb);
+    // log_summary(4096, hits, iteration - hits, iteration, 0, max);
     fclose(trace_file);
     return 0;
 }

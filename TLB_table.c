@@ -1,4 +1,3 @@
-
 #include "TLB_table.h"
 
 TLB_table *create_table(int capacity)
@@ -42,8 +41,18 @@ int get_frame_number(TLB_table *tlb, int address)
             return tlb->table[i].frame_number;
         }
     }
+    return -1;
 }
+
 bool table_full(TLB_table *tlb)
 {
     return tlb->size == tlb->capacity;
+}
+
+void print_table(TLB_table *tlb)
+{
+    for (int i = 0; i < tlb->size; i++)
+    {
+        printf("address: %d, frame: %d\n", tlb->table[i].address, tlb->table[i].frame_number);
+    }
 }

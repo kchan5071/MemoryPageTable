@@ -9,12 +9,13 @@ pagingwithatc:
 # page_table contains the specific page_table implementation
 	gcc -c page_table.c -o page_table.o
 	gcc -c page_table_params.c -o page_table_params.o
+	gcc -c TLB_table.c -o TLB_table.o
 
 # main file
 	gcc -c main.c -o main.o
 
 # link output files to pagingwithatc executable
-	gcc main.o tracereader.o log.o page_table.o page_table_params.o -o pagingwithatc
+	gcc main.o tracereader.o log.o page_table.o page_table_params.o TLB_table.o -o pagingwithatc
 
 run-tests:
 	make pagingwithatc
