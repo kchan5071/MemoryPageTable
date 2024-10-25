@@ -18,7 +18,7 @@ node* create_node(int address, int children_count) {
     new_node->address = address;
     //initialize children array of size children_count
     new_node->children = (node**)calloc((int)sizeof(node), children_count);
-    new_node->times_accessed = 1;
+    new_node->time_accessed = -1;
     return new_node;
 }
 
@@ -52,15 +52,17 @@ page_table* init_page_table(uint32_t* levels, uint32_t* bitmask, uint32_t* shift
  * 
  * @return: the page table
  */
-page_table* build_page_table(char** argv, int* depth) {
+page_table* build_page_table(char** argv, int* depth, int* depth_array) {
     //get parameters
-    uint32_t* levels = get_levels(argv, depth);
-    uint32_t* bitmasks = create_bit_masks(levels, *depth);
-    uint32_t* shifts = create_shifts(levels, *depth);
-    uint32_t* entry_counts = calculate_entry_count(levels, *depth);
+    uint32_t* bitmasks = create_bit_masks(depth_array, *depth);
+    uint32_t* shifts = create_shifts(depth_array, *depth);
+    uint32_t* entry_counts = calculate_entry_count(depth_array, *depth);
 
     //create page table
-    page_table* table = init_page_table(levels, bitmasks, shifts, entry_counts, *depth);
+    page_table* table = init_page_table(depth_array, bitmasks, shifts, entry_counts, *depth);
+    for (int i = 0; i < *depth; i++) {
+        printf("Level %d: %d bits, %d entries, bitmask: %d, shift: %d\n", i, depth_array[i], entry_counts[i], bitmasks[i], shifts[i]);
+    }
     return table;
 }
 
@@ -75,11 +77,16 @@ page_table* build_page_table(char** argv, int* depth) {
  * 
  * @return: the number of times the page has been accessed
  */
-uint32_t record_page_access(page_table* table, node* root, uint32_t* page_indices, int at_level, int depth) {
+address_time_pair record_page_access(page_table* table, node* root, uint32_t* page_indices, int at_level, int depth, int time_accessed) {
     //base case
     node* current = root;
     if (at_level == depth) {
-        return current->times_accessed++;
+        //check if the page has been accessed before
+        if (current->time_accessed == -1) {
+            current->time_accessed = time_accessed;
+        }
+        address_time_pair pair = {current->address, current->time_accessed};
+        return pair;
     }
     //recursive case
     uint32_t index = page_indices[at_level];
@@ -89,5 +96,5 @@ uint32_t record_page_access(page_table* table, node* root, uint32_t* page_indice
     }
     //traverse to next level
     current = current->children[index];
-    return record_page_access(table, current, page_indices, at_level + 1, depth);
+    return record_page_access(table, current, page_indices, at_level + 1, depth, time_accessed);
 }

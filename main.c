@@ -19,13 +19,7 @@ typedef struct args {
     //default is "none"
     char* output_mode;
     int number_of_args;
-};
-
-
-typedef struct adress_time_pair {
-    uint32_t address;
-    int times_accessed;
-} adress_time_pair;
+} args;
 
 static struct args* parse_opt(int argc, char** argv) {
     struct args* args = malloc(sizeof(struct args));
@@ -122,19 +116,19 @@ int main(int argc, char** argv) {
     }
 
     //read the rest of the arguments into an int array
-    int number_of_bits = argc - args->number_of_args - 1;
-    int* depth_array = get_depth(number_of_bits, argc, argv);
+    depth = argc - args->number_of_args - 1;
+    int* depth_array = get_depth(depth, argc, argv);
 
     //DELETE LATER
-    for (int i = 0; i < number_of_bits; i++) {
+    for (int i = 0; i < depth; i++) {
         printf("depth_array[%d]: %d\n", i, depth_array[i]);
     }
 
     //check for validity
-    check_for_validity(depth_array, number_of_bits);
+    check_for_validity(depth_array, depth);
 
     //create page table
-    page_table* table = build_page_table(argv, &depth);
+    page_table* table = build_page_table(argv, &depth, depth_array);
 
     //log bitmasks
     log_bitmasks(depth, table->bitmask);
@@ -147,9 +141,10 @@ int main(int argc, char** argv) {
     int iteration = 0;
     while (NextAddress(trace_file, &trace)) {
         uint32_t* indices = get_page_indices(trace.addr, table->bitmask, table->shift, depth);
-        int times_accessed = record_page_access(table, table->root, indices, 0, depth);
+        address_time_pair pair = record_page_access(table, table->root, indices, 0, depth, iteration);
         //log accesses
-        log_pgindices_numofaccesses(trace.addr, depth, indices, times_accessed);
+        printf("Address: %d, Time Accessed: %d\n", pair.address, pair.times_accessed);
+        iteration++;
     }
     fclose(trace_file);
     return 0;
