@@ -1,7 +1,7 @@
 #Kai Chan 
 #827673009
 
-pagetrace:
+pagingwithatc:
 # create output files
 # lib contains code not written by me
 	gcc -c tracereader.c -o tracereader.o
@@ -13,21 +13,37 @@ pagetrace:
 # main file
 	gcc -c main.c -o main.o
 
-# link output files to pagetrace executable
-	gcc main.o tracereader.o log.o page_table.o page_table_params.o -o pagetrace
+# link output files to pagingwithatc executable
+	gcc main.o tracereader.o log.o page_table.o page_table_params.o -o pagingwithatc
+
+run-tests:
+	make pagingwithatc
+#default case
+	./pagingwithatc trace_files/trace.tr 7 15 3
+#check for args to work
+	./pagingwithatc -o TEST -n 500 -c 20 trace_files/trace.tr 7 15
+#check for missing file
+	./pagingwithatc trace_files/missing_file.tr 7 15 3
+	./pagingwithatc trace_files/trace 7 15 3
+
+#check for bit validity
+	./pagingwithatc trace_files/trace.tr 7 15 0
+	./pagingwithatc trace_files/trace.tr 7 15 4 4 4 4
+
+	make clean
 
 run:
-	make pagetrace
-	./pagetrace -o TEST -n 500 -c 20 trace_files/trace.tr "7 15" 
+	make pagingwithatc
+	./pagingwithatc -o TEST -n 500 -c 20  trace_files/trace.tr 7 15 3
 	make clean
 
 
 compile_run:
 	make clean
-	make pagetrace
+	make pagingwithatc
 	make run
 	make clean
 
 clean:
-	rm -f pagetrace 
+	rm -f pagingwithatc
 	rm -f *.o
