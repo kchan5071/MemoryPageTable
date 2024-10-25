@@ -1,5 +1,5 @@
-#ifndef TBL_table_H
-#define TBL_table_H
+#ifndef TLB_TABLE_H
+#define TLB_TABLE_H
 
 #include <stdbool.h>
 #include <stdlib.h>

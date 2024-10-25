@@ -11,6 +11,9 @@
 /**
  * Kai Chan
  * 827673009
+ *
+ * Halie Do
+ * 827707836
  */
 
 typedef struct args
@@ -23,7 +26,6 @@ typedef struct args
     char *output_mode;
     int number_of_args;
 } args;
-
 
 static struct args *parse_opt(int argc, char **argv)
 {
@@ -112,17 +114,17 @@ int main(int argc, char **argv)
 
     // parse arguments
     struct args *args = parse_opt(argc, argv);
-  
-    //DELETE LATER
-    // printf("cache_capacity: %d\n", args->cache_capacity);
-    // printf("number_of_addresses: %d\n", args->number_of_addresses);
-    // printf("output_mode: %s\n", args->output_mode);
 
+    // DELETE LATER
+    //  printf("cache_capacity: %d\n", args->cache_capacity);
+    //  printf("number_of_addresses: %d\n", args->number_of_addresses);
+    //  printf("output_mode: %s\n", args->output_mode);
 
     // check for filename
     char *filename = get_filename(argc, argv);
     FILE *trace_file = fopen(filename, "r");
-    if (trace_file == NULL || filename == NULL) {
+    if (trace_file == NULL || filename == NULL)
+    {
         printf("Unable to open <<%s>>\n", filename);
         exit(0);
     }
@@ -131,24 +133,23 @@ int main(int argc, char **argv)
         args->number_of_args++;
     }
 
-    //read the rest of the arguments into an int array
+    // read the rest of the arguments into an int array
     depth = argc - args->number_of_args - 1;
-    uint32_t* depth_array = get_depth(depth, argc, argv);
+    uint32_t *depth_array = get_depth(depth, argc, argv);
 
-    //DELETE LATER
-    // for (int i = 0; i < depth; i++) {
-    //     printf("depth_array[%d]: %d\n", i, depth_array[i]);
-    // }
+    // DELETE LATER
+    //  for (int i = 0; i < depth; i++) {
+    //      printf("depth_array[%d]: %d\n", i, depth_array[i]);
+    //  }
 
-    //check for validity
+    // check for validity
     check_for_validity(depth_array, depth);
 
-    //create page table
-    page_table* page_table = build_page_table(argv, &depth, depth_array);
+    // create page table
+    page_table *page_table = build_page_table(argv, &depth, depth_array);
 
-    //create TLB table
-    TLB_table* tlb = create_table(args->cache_capacity);
-
+    // create TLB table
+    TLB_table *tlb = create_table(args->cache_capacity);
 
     // create trace file and trace struct
     p2AddrTr trace = {0};
@@ -160,22 +161,26 @@ int main(int argc, char **argv)
     long hits = 0;
     long max = 0;
 
-    while (NextAddress(trace_file, &trace)) {
-        uint32_t* indices = get_page_indices(trace.addr, page_table->bitmask, page_table->shift, depth);
+    while (NextAddress(trace_file, &trace))
+    {
+        uint32_t *indices = get_page_indices(trace.addr, page_table->bitmask, page_table->shift, depth);
         address_time_pair pair = record_page_access(page_table, page_table->root, indices, 0, depth, iteration);
-        //check if the address is in the TLB
+        // check if the address is in the TLB
         int frame = get_frame_number(tlb, trace.addr);
-        if (frame == -1) {
-            //add to TLB
-            // add_to_table(tlb, trace.addr, pair.address);
+        if (frame == -1)
+        {
+            // add to TLB
+            //  add_to_table(tlb, trace.addr, pair.address);
         }
-        if (pair.time_accessed != iteration) {
+        if (pair.time_accessed != iteration)
+        {
             hits++;
         }
-        else {
+        else
+        {
             max = iteration;
         }
-        //log accesses
+        // log accesses
         iteration++;
     }
 
