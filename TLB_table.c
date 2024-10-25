@@ -10,7 +10,7 @@ TLB_table *create_table(int capacity)
 }
 void add_to_table(TLB_table *tlb, int addr, int frame)
 {
-    tlb->table = (TLB_entry *)realloc(tlb->table, tlb->size * sizeof(TLB_entry));
+    tlb->table = (TLB_entry **)realloc(tlb->table, tlb->size * sizeof(TLB_entry *));
     TLB_entry *new_entry = (TLB_entry *)malloc(sizeof(TLB_entry));
     new_entry->address = addr;
     new_entry->frame_number = frame;
@@ -19,16 +19,18 @@ void add_to_table(TLB_table *tlb, int addr, int frame)
 }
 void delete_from_table(TLB_table *tlb, int address)
 {
-    int indexToDel;
+    int shiftStart;
     for (int i = 0; i < tlb->size; i++)
     {
         if (tlb->table[i]->address == address)
         {
-            indexToDel = i;
+            free(tlb->table[i]);
+            tlb->table[i] = NULL;
+            shiftStart = i;
             break;
         }
     }
-    for (int i = indexToDel; i < tlb->size - 1; i++)
+    for (int i = shiftStart; i < tlb->size - 1; i++)
     {
         tlb->table[i] = tlb->table[i + 1];
     }
