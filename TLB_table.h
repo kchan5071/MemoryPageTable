@@ -15,7 +15,7 @@ typedef struct TLB_table
     int capacity;
 } TLB_table;
 
-void create_table(TLB_table *tlb, int capacity);
+TLB_table *create_table(int capacity);
 void add_to_table(TLB_table *tlb, int addr, int frame);
 void delete_from_table(TLB_table *tlb, int addr);
 int get_frame_number(TLB_table *tlb, int addr);
