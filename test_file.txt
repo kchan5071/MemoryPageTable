@@ -1,0 +1,25 @@
+make pagingwithatc
+gcc -c tracereader.c -o tracereader.o
+gcc -c log.c -o log.o
+gcc -c page_table.c -o page_table.o
+gcc -c page_table_params.c -o page_table_params.o
+gcc -c main.c -o main.o
+gcc main.o tracereader.o log.o page_table.o page_table_params.o -o pagingwithatc
+./pagingwithatc -o TEST -n 500 -c 20 trace_files/trace.tr 7 15 3
+Bitmasks
+level 0 mask FE000000
+level 1 mask 01FFFC00
+level 2 mask 00000380
+hits: 217876
+iteration: 224449
+hit_percent: 0.970715
+miss_percent: 0.029285
+Page size: 4096 bytes
+Addresses processed: 224449
+Cache hits: 217876, Page hits: 6573, Total hits: 224449, Misses: 0
+Total hit percentage: 100.00%, miss percentage: 0.00%
+Frames allocated: 0
+Number of page table entries: 224445
+make clean
+rm -f pagingwithatc
+rm -f *.o

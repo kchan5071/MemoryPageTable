@@ -21,13 +21,8 @@ typedef struct args
     // default is "none"
     char *output_mode;
     int number_of_args;
-};
+} args;
 
-typedef struct adress_time_pair
-{
-    uint32_t address;
-    int times_accessed;
-} adress_time_pair;
 
 static struct args *parse_opt(int argc, char **argv)
 {
@@ -116,18 +111,17 @@ int main(int argc, char **argv)
 
     // parse arguments
     struct args *args = parse_opt(argc, argv);
+  
+    //DELETE LATER
+    // printf("cache_capacity: %d\n", args->cache_capacity);
+    // printf("number_of_addresses: %d\n", args->number_of_addresses);
+    // printf("output_mode: %s\n", args->output_mode);
 
-    // DELETE LATER
-    printf("cache_capacity: %d\n", args->cache_capacity);
-    printf("number_of_addresses: %d\n", args->number_of_addresses);
-    printf("output_mode: %s\n", args->output_mode);
 
     // check for filename
     char *filename = get_filename(argc, argv);
     FILE *trace_file = fopen(filename, "r");
-    printf("filename: %s\n", filename);
-    if (trace_file == NULL || filename == NULL)
-    {
+    if (trace_file == NULL || filename == NULL) {
         printf("Unable to open <<%s>>\n", filename);
         exit(0);
     }
@@ -136,21 +130,20 @@ int main(int argc, char **argv)
         args->number_of_args++;
     }
 
-    // read the rest of the arguments into an int array
-    int number_of_bits = argc - args->number_of_args - 1;
-    int *depth_array = get_depth(number_of_bits, argc, argv);
+    //read the rest of the arguments into an int array
+    depth = argc - args->number_of_args - 1;
+    int* depth_array = get_depth(depth, argc, argv);
 
-    // DELETE LATER
-    for (int i = 0; i < number_of_bits; i++)
-    {
-        printf("depth_array[%d]: %d\n", i, depth_array[i]);
-    }
+    //DELETE LATER
+    // for (int i = 0; i < depth; i++) {
+    //     printf("depth_array[%d]: %d\n", i, depth_array[i]);
+    // }
 
-    // check for validity
-    check_for_validity(depth_array, number_of_bits);
+    //check for validity
+    check_for_validity(depth_array, depth);
 
-    // create page table
-    page_table *table = build_page_table(argv, &depth);
+    //create page table
+    page_table* table = build_page_table(argv, &depth, depth_array);
 
     // log bitmasks
     log_bitmasks(depth, table->bitmask);
@@ -160,14 +153,30 @@ int main(int argc, char **argv)
 
     // loop through all addresses
     int address = -1;
-    int iteration = 0;
-    while (NextAddress(trace_file, &trace))
-    {
-        uint32_t *indices = get_page_indices(trace.addr, table->bitmask, table->shift, depth);
-        int times_accessed = record_page_access(table, table->root, indices, 0, depth);
-        // log accesses
-        log_pgindices_numofaccesses(trace.addr, depth, indices, times_accessed);
+
+    long iteration = 0;
+    long hits = 0;
+    long max = 0;
+
+    while (NextAddress(trace_file, &trace)) {
+        uint32_t* indices = get_page_indices(trace.addr, table->bitmask, table->shift, depth);
+        address_time_pair pair = record_page_access(table, table->root, indices, 0, depth, iteration);
+        if (pair.time_accessed != iteration) {
+            hits++;
+        }
+        else {
+            max = iteration;
+        }
+        //log accesses
+        iteration++;
     }
+    printf("hits: %ld\n", hits);
+    printf("iteration: %ld\n", iteration);
+    float hit_percent = (float)hits / (float)iteration;
+    float miss_percent = 1 - hit_percent;
+    printf("hit_percent: %f\n", hit_percent);
+    printf("miss_percent: %f\n", miss_percent);
+    log_summary(4096, hits, iteration - hits, iteration, 0, max);
     fclose(trace_file);
     return 0;
 }
