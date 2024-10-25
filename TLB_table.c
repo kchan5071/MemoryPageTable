@@ -34,6 +34,7 @@ void delete_from_table(TLB_table *tlb, int address)
     {
         tlb->table[i] = tlb->table[i + 1];
     }
+    tlb->table[tlb->size] = NULL;
     tlb->size--;
 }
 int get_frame_number(TLB_table *tlb, int address)
