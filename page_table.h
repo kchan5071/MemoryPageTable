@@ -38,7 +38,7 @@ node* create_node(int address, int children_count);
 page_table* init_page_table(uint32_t* levels, uint32_t* bitmask, uint32_t* shift, uint32_t* entry_counts, int depth);
 
 //build a page table from the given arguments(calls create_page_table)
-page_table* build_page_table(char** argv, int* depth, int* depth_array);
+page_table* build_page_table(char** argv, int* depth, uint32_t* depth_array);
 
 address_time_pair record_page_access(page_table* table, node* root, uint32_t* page_indices, int at_level, int depth, int time_accessed);
 

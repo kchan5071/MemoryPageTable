@@ -73,10 +73,10 @@ static char *get_filename(int argc, char **argv)
     return NULL;
 }
 
-static int *get_depth(int number_of_bits, int argc, char **argv)
+static uint32_t *get_depth(int number_of_bits, int argc, char **argv)
 {
     // take in the rest of the arguments and put them into an int array
-    int *depth_array = malloc(sizeof(int) * number_of_bits);
+    uint32_t *depth_array = malloc(sizeof(uint32_t) * number_of_bits);
     // iterate through the number of bits and convert them to ints
     for (int i = 0; i < number_of_bits; i++)
     {
@@ -85,7 +85,7 @@ static int *get_depth(int number_of_bits, int argc, char **argv)
     return depth_array;
 }
 
-static void check_for_validity(int *depth_array, int number_of_bits)
+static void check_for_validity(uint32_t *depth_array, int number_of_bits)
 {
     // check to see that the number of bits is greater than 0
     // and the total is less than 28
@@ -133,7 +133,7 @@ int main(int argc, char **argv)
 
     //read the rest of the arguments into an int array
     depth = argc - args->number_of_args - 1;
-    int* depth_array = get_depth(depth, argc, argv);
+    uint32_t* depth_array = get_depth(depth, argc, argv);
 
     //DELETE LATER
     // for (int i = 0; i < depth; i++) {

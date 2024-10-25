@@ -52,7 +52,7 @@ page_table* init_page_table(uint32_t* levels, uint32_t* bitmask, uint32_t* shift
  * 
  * @return: the page table
  */
-page_table* build_page_table(char** argv, int* depth, int* depth_array) {
+page_table* build_page_table(char** argv, int* depth, uint32_t* depth_array) {
     //get parameters
     uint32_t* bitmasks = create_bit_masks(depth_array, *depth);
     uint32_t* shifts = create_shifts(depth_array, *depth);
