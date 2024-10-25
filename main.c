@@ -170,7 +170,7 @@ int main(int argc, char **argv)
         if (frame == -1)
         {
             // add to TLB
-            //  add_to_table(tlb, trace.addr, pair.address);
+            add_to_table(tlb, trace.addr, pair.address);
         }
         if (pair.time_accessed != iteration)
         {

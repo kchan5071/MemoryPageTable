@@ -3,14 +3,14 @@
 TLB_table *create_table(int capacity)
 {
     TLB_table *tlb = (TLB_table *)malloc(sizeof(TLB_table));
-    tlb->table = (TLB_entry **)malloc(capacity * sizeof(TLB_entry));
+    tlb->table = (TLB_entry **)malloc(capacity * sizeof(TLB_entry *));
     tlb->size = 0;
     tlb->capacity = capacity;
     return tlb;
 }
 void add_to_table(TLB_table *tlb, int addr, int frame)
 {
-    tlb->table = (TLB_entry **)realloc(tlb->table, tlb->size * sizeof(TLB_entry *));
+    tlb->table = (TLB_entry **)realloc(tlb->table, (tlb->size + 1) * sizeof(TLB_entry *));
     TLB_entry *new_entry = (TLB_entry *)malloc(sizeof(TLB_entry));
     new_entry->address = addr;
     new_entry->frame_number = frame;
