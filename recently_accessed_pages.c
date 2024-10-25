@@ -26,14 +26,16 @@ void update_time_accessed(recently_accessed_pages_table *tbl, int address, int t
     }
 }
 
-void add_to_recent(recently_accessed_pages_table *tbl, address_time_pair *pair)
+void add_to_recent(recently_accessed_pages_table *tbl, uint32_t addr, int time_accessed)
 {
     if (tbl->size == tbl->capacity)
     {
         remove_oldest(tbl);
     }
-    tbl->table = (address_time_pair **)realloc(tbl->table, (tbl->size + 1) * sizeof(address_time_pair *));
-    tbl->table[tbl->size] = pair;
+    address_time_pair *new_entry = (address_time_pair *)malloc(sizeof(address_time_pair));
+    new_entry->address = addr;
+    new_entry->time_accessed = time_accessed;
+    tbl->table[tbl->size] = new_entry;
     tbl->size++;
 }
 int get_index_of_least_recently_accessed(recently_accessed_pages_table *tbl)
@@ -52,7 +54,6 @@ void remove_oldest(recently_accessed_pages_table *tbl)
 {
     int index_to_remove = get_index_of_least_recently_accessed(tbl);
     free(tbl->table[index_to_remove]);
-    tbl->table[index_to_remove] = NULL;
     for (int i = index_to_remove; i < tbl->size - 1; i++)
     {
         tbl->table[i] = tbl->table[i + 1];
@@ -71,4 +72,13 @@ int get_time_accessed(recently_accessed_pages_table *tbl, int addr)
         }
     }
     return -1;
+}
+
+void print_recently_accessed_pgs(recently_accessed_pages_table *tbl)
+{
+    printf("Recently accessed page numbers: \n");
+    for (int i = 0; i < tbl->size; i++)
+    {
+        printf("Page number: 0x%08X, time accessed: %d\n", tbl->table[i]->address, tbl->table[i]->time_accessed);
+    }
 }
