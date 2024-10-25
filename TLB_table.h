@@ -13,7 +13,7 @@ typedef struct TLB_entry
 
 typedef struct TLB_table
 {
-    TLB_entry *table;
+    TLB_entry **table;
     int size;
     int capacity;
 } TLB_table;
