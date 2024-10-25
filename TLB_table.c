@@ -1,6 +1,5 @@
 
 #include "TLB_table.h"
-#include <stdbool.h>
 
 TLB_table *create_table(int capacity)
 {
@@ -10,14 +9,14 @@ TLB_table *create_table(int capacity)
     tlb->capacity = capacity;
     return tlb;
 }
-void add_entry_to_table(TLB_table *tlb, int addr, int frame)
+void add_to_table(TLB_table *tlb, int addr, int frame)
 {
     tlb->table = (TLB_entry *)realloc(tlb->table, tlb->size * sizeof(TLB_entry));
     tlb->table[tlb->size].address = addr;
     tlb->table[tlb->size].frame_number = frame;
     tlb->size++;
 }
-void delete_entry_from_table(TLB_table *tlb, int address)
+void delete_from_table(TLB_table *tlb, int address)
 {
     int indexToDel;
     for (int i = 0; i < tlb->size; i++)
