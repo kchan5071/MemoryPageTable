@@ -1,32 +1,33 @@
 #include "recently_accessed_pages.h"
 
-recently_accessed_pages_table *create_table()
+recency_table *create_recency_table()
 {
-    recently_accessed_pages_table *tbl = (recently_accessed_pages_table *)malloc(sizeof(recently_accessed_pages_table));
+    recency_table *tbl = (recency_table *)malloc(sizeof(recency_table));
     tbl->table = (address_time_pair **)malloc(CAPACITY * sizeof(address_time_pair *));
     tbl->size = 0;
     tbl->capacity = CAPACITY;
     return tbl;
 }
 
-bool is_full(recently_accessed_pages_table *tbl)
+bool is_full(recency_table *tbl)
 {
     return tbl->size == tbl->capacity;
 }
 
-void update_time_accessed(recently_accessed_pages_table *tbl, int address, int time_accessed)
+bool update_time_accessed(recency_table *tbl, int address, int time_accessed)
 {
     for (int i = 0; i < tbl->size; i++)
     {
         if (tbl->table[i]->address == address)
         {
             tbl->table[i]->time_accessed = time_accessed;
-            break;
+            return true;
         }
     }
+    return false;
 }
 
-void add_to_recent(recently_accessed_pages_table *tbl, uint32_t addr, int time_accessed)
+void add_to_recent(recency_table *tbl, uint32_t addr, int time_accessed)
 {
     if (tbl->size == tbl->capacity)
     {
@@ -38,7 +39,7 @@ void add_to_recent(recently_accessed_pages_table *tbl, uint32_t addr, int time_a
     tbl->table[tbl->size] = new_entry;
     tbl->size++;
 }
-int get_index_of_least_recently_accessed(recently_accessed_pages_table *tbl)
+int get_index_of_least_recently_accessed(recency_table *tbl)
 {
     int index_to_remove = 0;
     for (int i = 0; i < tbl->size; i++)
@@ -50,7 +51,7 @@ int get_index_of_least_recently_accessed(recently_accessed_pages_table *tbl)
     }
     return index_to_remove;
 }
-void remove_oldest(recently_accessed_pages_table *tbl)
+void remove_oldest(recency_table *tbl)
 {
     int index_to_remove = get_index_of_least_recently_accessed(tbl);
     free(tbl->table[index_to_remove]);
@@ -62,7 +63,7 @@ void remove_oldest(recently_accessed_pages_table *tbl)
     tbl->size--;
 }
 
-int get_time_accessed(recently_accessed_pages_table *tbl, int addr)
+int get_time_accessed(recency_table *tbl, int addr)
 {
     for (int i = 0; i < tbl->size; i++)
     {
@@ -74,7 +75,7 @@ int get_time_accessed(recently_accessed_pages_table *tbl, int addr)
     return -1;
 }
 
-void print_recently_accessed_pgs(recently_accessed_pages_table *tbl)
+void print_recently_accessed_pgs(recency_table *tbl)
 {
     printf("Recently accessed page numbers: \n");
     for (int i = 0; i < tbl->size; i++)

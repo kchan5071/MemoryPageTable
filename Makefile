@@ -36,7 +36,7 @@ run-tests:
 
 run:
 	make pagingwithatc
-	./pagingwithatc -o TEST -n 500 -c 20 trace_files/trace.tr 7 15 3
+	./pagingwithatc -n 20 -c 5 -o va2pa_atc_ptwalk trace_files/trace.tr 4 8 6
 	make clean
 
 

@@ -82,11 +82,9 @@ page_number_info record_page_access(page_table *table, node *root, uint32_t *pag
 {
     // base case
     node *current = root;
-    if (at_level == depth)
-    {
+    if (at_level == depth) {
         // check if the page has been accessed before
-        if (current->time_accessed == -1)
-        {
+        if (current->time_accessed == -1) {
             current->frame_number = *frame;
             ++(*frame);
         }
@@ -97,8 +95,7 @@ page_number_info record_page_access(page_table *table, node *root, uint32_t *pag
     // recursive case
     uint32_t index = page_indices[at_level];
     // create new node if it doesn't exist
-    if (current->children[index] == NULL)
-    {
+    if (current->children[index] == NULL) {
         current->children[index] = create_node(index, table->entry_count[at_level + 1]);
     }
     // traverse to next level

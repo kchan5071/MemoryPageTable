@@ -4,9 +4,42 @@ gcc -c log.c -o log.o
 gcc -c page_table.c -o page_table.o
 gcc -c page_table_params.c -o page_table_params.o
 gcc -c TLB_table.c -o TLB_table.o
+gcc -c recently_accessed_pages.c -o recently_accessed_pages.o
 gcc -c main.c -o main.o
-gcc main.o tracereader.o log.o page_table.o page_table_params.o TLB_table.o -o pagingwithatc
-./pagingwithatc -o TEST -n 500 -c 20 trace_files/trace.tr 7 15 3
+gcc main.o tracereader.o log.o page_table.o page_table_params.o TLB_table.o recently_accessed_pages.o -o pagingwithatc
+./pagingwithatc -n 20 -c 5 -o va2pa_atc_ptwalk trace_files/trace.tr 4 8 6
+0041F760 -> 0041C000, tlb miss, pagetable hit
+0041F780 -> 0041C000, tlb hit
+0041F740 -> 0041C000, tlb hit
+11F5E2C0 -> 11F5C000, tlb miss, pagetable hit
+05E78900 -> 05E78000, tlb miss, pagetable hit
+13270900 -> 13270000, tlb miss, pagetable hit
+004758A0 -> 00474000, tlb miss, pagetable hit
+004A30A0 -> 004A0000, tlb miss, pagetable hit
+0049E110 -> 0049C000, tlb miss, pagetable hit
+0049E160 -> 0049C000, tlb hit
+0044E4F8 -> 0044C000, tlb miss, pagetable hit
+0044E500 -> 0044C000, tlb hit
+0744E520 -> 0744C000, tlb miss, pagetable hit
+0044E5A0 -> 0044C000, tlb miss, pagetable hit
+388A65A0 -> 388A4000, tlb miss, pagetable hit
+0744EDD0 -> 0744C000, tlb miss, pagetable hit
+0044E5E0 -> 0044C000, tlb miss, pagetable hit
+0703FF10 -> 0703C000, tlb miss, pagetable hit
+0044E620 -> 0044C000, tlb miss, pagetable hit
+1D496620 -> 1D494000, tlb miss, pagetable hit
+Recently accessed page numbers: 
+Page number: 0x0041C000, time accessed: 2
+Page number: 0x11F5C000, time accessed: 3
+Page number: 0x05E78000, time accessed: 4
+Page number: 0x13270000, time accessed: 5
+Page number: 0x00474000, time accessed: 6
+Page number: 0x388A4000, time accessed: 14
+Page number: 0x0044C000, time accessed: 18
+address: 0x0041C000, frame: 1
+address: 0x11F5C000, frame: 2
+address: 0x05E78000, frame: 3
+address: 0x13270000, frame: 4
 make clean
 rm -f pagingwithatc
 rm -f *.o

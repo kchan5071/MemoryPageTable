@@ -109,8 +109,7 @@ static void check_for_validity(uint32_t *depth_array, int number_of_bits)
     }
 }
 
-static uint32_t get_virtual_page_number(uint32_t addr, uint32_t *num_of_mask_bits_arr, int num_of_levels)
-{
+static uint32_t get_virtual_page_number(uint32_t addr, uint32_t *num_of_mask_bits_arr, int num_of_levels) {
     uint32_t bits_to_mask = 0;
     for (int i = 0; i < num_of_levels; i++)
     {
@@ -126,8 +125,7 @@ static uint32_t get_virtual_page_number(uint32_t addr, uint32_t *num_of_mask_bit
     return (addr & mask);
 }
 
-int main(int argc, char **argv)
-{
+int main(int argc, char **argv) {
 
     // read args
     int depth = 0;
@@ -172,76 +170,81 @@ int main(int argc, char **argv)
     // create TLB table
     TLB_table *tlb = create_tlb_table(args->cache_capacity);
 
-    recently_accessed_pages_table *recent_pages_tbl = create_table();
+    recency_table *recent_pages_tbl = create_recency_table();
 
     // create trace file and trace struct
     p2AddrTr trace = {0};
 
     // loop through all addresses
     long iteration = 0;
-    long hits = 0;
+    long cache_hits = 0;
+    long page_table_hits = 0;
     long max = 0;
-    int frame_number = 0;
+    int frame_number = 1;
 
-    while (NextAddress(trace_file, &trace))
-    {
+    while (NextAddress(trace_file, &trace)) {
         int tlb_least_recently_accessed_addr_idx = 0;
-        if (args->number_of_addresses != -1 && iteration == args->number_of_addresses)
-        {
+        if (args->number_of_addresses != -1 && iteration == args->number_of_addresses) {
             break;
         }
+
         uint32_t virtual_pg_num = get_virtual_page_number(trace.addr, depth_array, depth);
         uint32_t *indices = get_page_indices(trace.addr, page_table->bitmask, page_table->shift, depth);
         page_number_info page_info = record_page_access(page_table, page_table->root, indices, 0, depth, iteration, &frame_number, virtual_pg_num);
-        if (get_time_accessed(recent_pages_tbl, page_info.address) == -1)
-        {
+
+        if (get_time_accessed(recent_pages_tbl, page_info.address) == -1) {
             add_to_recent(recent_pages_tbl, page_info.address, page_info.time_accessed);
         }
-        else
-        {
+        else {
             update_time_accessed(recent_pages_tbl, page_info.address, page_info.time_accessed);
-            printf("Address 0x%08X time access updated: %d\n", page_info.address, page_info.time_accessed);
+            cache_hits++;
         }
+
         // check if the address is in the TLB
         int frame = get_frame_number(tlb, page_info.address);
-        if (frame == -1 && !table_full(tlb))
-        {
+        if (frame == -1 && !table_full(tlb)) {
             // add to TLB
             add_to_table(tlb, page_info.address, page_info.frame_number);
         }
-        else if (table_full(tlb))
-        {
-            for (int i = 0; i < tlb->size; i++)
-            {
-                if (get_time_accessed(recent_pages_tbl, tlb->table[i]->address) > get_time_accessed(recent_pages_tbl, tlb->table[tlb_least_recently_accessed_addr_idx]->address))
-                {
+        else if (!table_full(tlb)) {
+            // update time accessed
+            if (!update_time_accessed(recent_pages_tbl, page_info.address, page_info.time_accessed)) {
+                // add to recently accessed pages
+                add_to_table(tlb, page_info.address, page_info.frame_number);
+            }
+            page_table_hits++;
+        }
+        else if (table_full(tlb)) {
+            for (int i = 0; i < tlb->size; i++) {
+                if (get_time_accessed(recent_pages_tbl, tlb->table[i]->address) >
+                    get_time_accessed(recent_pages_tbl, tlb->table[tlb_least_recently_accessed_addr_idx]->address)) {
                     tlb_least_recently_accessed_addr_idx = i;
                 }
             }
             delete_from_table(tlb, tlb->table[tlb_least_recently_accessed_addr_idx]->address);
             remove_oldest(recent_pages_tbl);
         }
-        if (page_info.time_accessed != iteration)
-        {
-            hits++;
+
+        if (page_info.time_accessed != iteration) {
+            cache_hits++;
         }
-        else
-        {
+        else {
             max = iteration;
         }
         // log accesses
+        log_va2pa_ATC_PTwalk(trace.addr, page_info.address, frame != -1, page_info.frame_number != -1);
+
         iteration++;
     }
     print_recently_accessed_pgs(recent_pages_tbl);
 
     // printf("hits: %ld\n", hits);
     // printf("iteration: %ld\n", iteration);
-    float hit_percent = (float)hits / (float)iteration;
+    float hit_percent = (float)cache_hits / (float)iteration;
     float miss_percent = 1 - hit_percent;
     // printf("hit_percent: %f\n", hit_percent);
     // printf("miss_percent: %f\n", miss_percent);
     print_table(tlb);
-    // log_summary(4096, hits, iteration - hits, iteration, 0, max);
     fclose(trace_file);
     return 0;
 }
