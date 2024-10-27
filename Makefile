@@ -35,8 +35,10 @@ run-tests:
 	make clean
 
 run:
+	make clean
 	make pagingwithatc
-	./pagingwithatc -n 20 -c 5 -o va2pa_atc_ptwalk trace_files/trace.tr 4 8 6
+#	./pagingwithatc -n 20 -c 5 -o va2pa_atc_ptwalk trace_files/trace.tr 4 8 6
+	./pagingwithatc -n 30 -o offset trace_files/trace.tr 8 8 4
 	make clean
 
 

@@ -25,7 +25,7 @@ typedef struct args
     int cache_capacity;
     // does all addresses by default, which  is encoded as -1
     int number_of_addresses;
-    // default is "none"
+    // default is "summary"
     char *output_mode;
     int number_of_args;
 } args;
@@ -36,7 +36,7 @@ static struct args *parse_opt(int argc, char **argv)
     // default values
     args->cache_capacity = 0;
     args->number_of_addresses = -1;
-    args->output_mode = "none";
+    args->output_mode = "summary";
     args->number_of_args = 0;
     // parse options
     int opt;
@@ -125,7 +125,11 @@ static uint32_t get_virtual_page_number(uint32_t addr, uint32_t *num_of_mask_bit
     return (addr & mask);
 }
 
+
+
 int main(int argc, char **argv) {
+    char modes[5][20] = {"bitmasks", "va2pa", "va2pa_atc_ptwalk", "vpn2pfn", "offset"};
+    // printf("Hello, World!\n");
 
     // read args
     int depth = 0;
@@ -154,8 +158,6 @@ int main(int argc, char **argv) {
     // read the rest of the arguments into an int array
     depth = argc - args->number_of_args - 1;
     uint32_t *depth_array = get_depth(depth, argc, argv);
-
-    // DELETE LATER
     // for (int i = 0; i < depth; i++)
     // {
     //     printf("depth_array[%d]: %d\n", i, depth_array[i]);
@@ -172,6 +174,7 @@ int main(int argc, char **argv) {
 
     recency_table *recent_pages_tbl = create_recency_table();
 
+
     // create trace file and trace struct
     p2AddrTr trace = {0};
 
@@ -183,16 +186,16 @@ int main(int argc, char **argv) {
     int frame_number = 1;
 
     while (NextAddress(trace_file, &trace)) {
-        int tlb_least_recently_accessed_addr_idx = 0;
+        //check if there are addresses or if we have read all the addresses
         if (args->number_of_addresses != -1 && iteration == args->number_of_addresses) {
             break;
         }
-
         uint32_t virtual_pg_num = get_virtual_page_number(trace.addr, depth_array, depth);
         uint32_t *indices = get_page_indices(trace.addr, page_table->bitmask, page_table->shift, depth);
         page_number_info page_info = record_page_access(page_table, page_table->root, indices, 0, depth, iteration, &frame_number, virtual_pg_num);
 
-        if (get_time_accessed(recent_pages_tbl, page_info.address) == -1) {
+        int time_accessed = get_time_accessed(recent_pages_tbl, page_info.address);
+        if (time_accessed == -1) {
             add_to_recent(recent_pages_tbl, page_info.address, page_info.time_accessed);
         }
         else {
@@ -201,6 +204,8 @@ int main(int argc, char **argv) {
         }
 
         // check if the address is in the TLB
+        int tlb_least_recently_accessed_addr_idx = 0;
+        bool found = false;
         int frame = get_frame_number(tlb, page_info.address);
         if (frame == -1 && !table_full(tlb)) {
             // add to TLB
@@ -224,7 +229,6 @@ int main(int argc, char **argv) {
             delete_from_table(tlb, tlb->table[tlb_least_recently_accessed_addr_idx]->address);
             remove_oldest(recent_pages_tbl);
         }
-
         if (page_info.time_accessed != iteration) {
             cache_hits++;
         }
@@ -232,7 +236,24 @@ int main(int argc, char **argv) {
             max = iteration;
         }
         // log accesses
-        log_va2pa_ATC_PTwalk(trace.addr, page_info.address, frame != -1, page_info.frame_number != -1);
+        if (args->output_mode == modes[0]) { // bitmasks
+            log_bitmasks(depth, page_table->bitmask);
+        }
+        else if (args->output_mode == modes[1]) { // va2pa
+            log_virtualAddr2physicalAddr(trace.addr, page_info.address);
+        }
+        else if (args->output_mode == modes[2]) { // va2pa_atc_ptwalk
+            log_va2pa_ATC_PTwalk(trace.addr, page_info.address, frame != -1, time_accessed != -1);
+        }
+        else if (args->output_mode == modes[3]) { // vpn2pfn
+            log_pagemapping(depth, indices, page_info.frame_number);
+        }
+        else if (args->output_mode == modes[4]) { // offset
+            hexnum(trace.addr);
+        }
+        else {
+            log_summary(page_table->entry_count[0], cache_hits, page_table_hits, max, iteration, page_table->entry_count[0]);
+        }
 
         iteration++;
     }

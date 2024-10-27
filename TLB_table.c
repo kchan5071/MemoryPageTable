@@ -19,8 +19,11 @@ void add_to_table(TLB_table *tlb, uint32_t addr, int frame) {
 
 void delete_from_table(TLB_table *tlb, uint32_t address) {
     int shiftStart;
-    // printf("Deleting address 0x%08X from table...\n", address);
     for (int i = 0; i < tlb->size; i++) {
+        if (tlb->table[i] == NULL) {
+            printf("NULL entry\n");
+            continue;
+        }
         if (tlb->table[i]->address == address) {
             free(tlb->table[i]);
             tlb->table[i] = NULL;
