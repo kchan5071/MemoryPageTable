@@ -30,12 +30,12 @@ typedef struct page_table
     uint32_t *entry_count; // number of entries for each level
 } page_table;
 
-typedef struct page_number_info
+typedef struct map
 {
     uint32_t address;
     int time_accessed;
     int frame_number;
-} page_number_info;
+} map;
 
 // create a new node
 node *create_node(int address, int children_count);
@@ -46,7 +46,7 @@ page_table *init_page_table(uint32_t *levels, uint32_t *bitmask, uint32_t *shift
 // build a page table from the given arguments(calls create_page_table)
 page_table *build_page_table(char **argv, int *depth, uint32_t *depth_array);
 
-page_number_info record_page_access(page_table *table, node *root, uint32_t *page_indices,
+map record_page_access(page_table *table, node *root, uint32_t *page_indices,
                                     int at_level, int depth, int time_accessed, int *frame, uint32_t vpn);
 
 #endif

@@ -1,3 +1,6 @@
+make clean
+rm -f pagingwithatc
+rm -f *.o
 make pagingwithatc
 gcc -c tracereader.c -o tracereader.o
 gcc -c log.c -o log.o
@@ -7,4 +10,13 @@ gcc -c TLB_table.c -o TLB_table.o
 gcc -c recently_accessed_pages.c -o recently_accessed_pages.o
 gcc -c main.c -o main.o
 gcc main.o tracereader.o log.o page_table.o page_table_params.o TLB_table.o recently_accessed_pages.o -o pagingwithatc
-./pagingwithatc -n 30 -o offset trace_files/trace.tr 8 8 4
+./pagingwithatc -n 8000 -o summary trace_files/trace.tr 24
+Page size: 256 bytes
+Addresses processed: 8000
+Cache hits: 0, Page hits: 6417, Total hits: 6417, Misses: 1583
+Total hit percentage: 80.21%, miss percentage: 19.79%
+Frames allocated: 1583
+Number of page table entries: 1583
+make clean
+rm -f pagingwithatc
+rm -f *.o

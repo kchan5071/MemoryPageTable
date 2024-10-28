@@ -21,8 +21,7 @@ recency_table *create_recency_table();
 bool is_full(recency_table *tbl);
 bool update_time_accessed(recency_table *tbl, int address, int time_accessed);
 void add_to_recent(recency_table *tbl, uint32_t addr, int time_accessed);
-int get_index_of_least_recently_accessed(recency_table *tbl);
-void remove_oldest(recency_table *tbl);
+int get_address_of_least_recently_accessed(recency_table *tbl);
 int get_time_accessed(recency_table *tbl, int address);
 void print_recently_accessed_pgs(recency_table *tbl);
 

@@ -78,7 +78,7 @@ page_table *build_page_table(char **argv, int *depth, uint32_t *depth_array)
  *
  * @return: the number of times the page has been accessed
  */
-page_number_info record_page_access(page_table *table, node *root, uint32_t *page_indices, int at_level, int depth, int time_accessed, int *frame, uint32_t vpn)
+map record_page_access(page_table *table, node *root, uint32_t *page_indices, int at_level, int depth, int time_accessed, int *frame, uint32_t vpn)
 {
     // base case
     node *current = root;
@@ -89,7 +89,7 @@ page_number_info record_page_access(page_table *table, node *root, uint32_t *pag
             ++(*frame);
         }
         current->time_accessed = time_accessed;
-        page_number_info page_info = {vpn, current->time_accessed, current->frame_number};
+        map page_info = {vpn, current->time_accessed, current->frame_number};
         return page_info;
     }
     // recursive case
