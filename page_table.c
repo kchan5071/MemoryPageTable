@@ -3,6 +3,9 @@
 /**
  * Kai Chan
  * 827673009
+ *
+ * Halie Do
+ * 827707836
  */
 
 /**
@@ -79,7 +82,7 @@ page_table *build_page_table(char **argv, int *depth, uint32_t *depth_array)
  *
  * @return: the number of times the page has been accessed
  */
-map record_page_access(page_table *table, node *root, uint32_t *page_indices, int at_level, int depth, int time_accessed, int *frame, uint32_t vpn)
+map lookup_vpn2pfn(page_table *table, node *root, uint32_t *page_indices, int at_level, int depth, int time_accessed, int *frame, uint32_t vpn)
 {
     // base case
     node *current = root;
@@ -91,7 +94,7 @@ map record_page_access(page_table *table, node *root, uint32_t *page_indices, in
         {
             current->frame_number = *frame;
             ++(*frame);
-            hit = false;
+            hit = false; // address has not previously been in page table - page table miss
         }
         current->time_accessed = time_accessed;
         map page_info = {vpn, current->time_accessed, current->frame_number, hit};
@@ -107,5 +110,5 @@ map record_page_access(page_table *table, node *root, uint32_t *page_indices, in
     }
     // traverse to next level
     current = current->children[index];
-    return record_page_access(table, current, page_indices, at_level + 1, depth, time_accessed, frame, vpn);
+    return lookup_vpn2pfn(table, current, page_indices, at_level + 1, depth, time_accessed, frame, vpn);
 }

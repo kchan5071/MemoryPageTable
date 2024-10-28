@@ -1,5 +1,13 @@
 #include "recently_accessed_pages.h"
 
+/**
+ * Halie Do
+ * 827707836
+ */
+
+/**
+ * @brief - create and initialize table for keeping track of 10 most recently accessed virtual page numbers
+ */
 recency_table *create_recency_table()
 {
     recency_table *tbl = (recency_table *)malloc(sizeof(recency_table));
@@ -9,12 +17,14 @@ recency_table *create_recency_table()
     return tbl;
 }
 
-bool is_full(recency_table *tbl)
-{
-    return tbl->size == tbl->capacity;
-}
-
-bool update_time_accessed(recency_table *tbl, int address, int time_accessed)
+/**
+ * @brief - update the time accessed of the given address in the table
+ *
+ * @param tbl - pointer to the recency table struct
+ * @param address - address to update in the table
+ * @param time_accessed - most recent time the address was accessed
+ */
+bool update_time_accessed(recency_table *tbl, uint32_t address, int time_accessed)
 {
     for (int i = 0; i < tbl->size; i++)
     {
@@ -27,15 +37,12 @@ bool update_time_accessed(recency_table *tbl, int address, int time_accessed)
     return false;
 }
 
-// void add_to_recent(recency_table *tbl, uint32_t addr, int time_accessed)
-// {
-//     address_time_pair *new_entry = (address_time_pair *)malloc(sizeof(address_time_pair));
-//     new_entry->address = addr;
-//     new_entry->time_accessed = time_accessed;
-//     tbl->table[tbl->size] = new_entry;
-//     tbl->size++;
-// }
-
+/**
+ * @brief - Add a new entry (new address with the time it was most recently accessed)
+ *
+ * @param addr - Address to be added to the table
+ * @param time_accessed - time accessed to be paired with the newly inserted address
+ */
 void add_to_recent(recency_table *tbl, uint32_t addr, int time_accessed)
 {
     if (tbl->size == tbl->capacity)
@@ -49,6 +56,11 @@ void add_to_recent(recency_table *tbl, uint32_t addr, int time_accessed)
     tbl->size++;
 }
 
+/**
+ * @brief - remove the least recently accessed address from the table
+ *
+ * @param tbl - pointer to struct recency table to update
+ */
 void remove_oldest(recency_table *tbl)
 {
     int index_to_remove = get_index_of_least_recently_accessed(tbl);
@@ -61,6 +73,11 @@ void remove_oldest(recency_table *tbl)
     tbl->size--;
 }
 
+/**
+ * @brief - return address that was least recently accessed
+ *
+ * @param - pointer to recency table struct to look up
+ */
 int get_address_of_least_recently_accessed(recency_table *tbl)
 {
     int last_accessed = tbl->table[0]->time_accessed;
@@ -76,6 +93,11 @@ int get_address_of_least_recently_accessed(recency_table *tbl)
     return tbl->table[index]->address;
 }
 
+/**
+ * @brief - return index of the entry with address least recently accessed
+ *
+ * @param tbl - pointer to recency table struct to do the look up
+ */
 int get_index_of_least_recently_accessed(recency_table *tbl)
 {
     int index_to_remove = 0;
@@ -89,6 +111,12 @@ int get_index_of_least_recently_accessed(recency_table *tbl)
     return index_to_remove;
 }
 
+/**
+ * @brief - return time accessed of an address in recency table
+ *
+ * @param tbl - pointer to recency table struct
+ * @param addr - address to look up
+ */
 int get_time_accessed(recency_table *tbl, uint32_t addr)
 {
     for (int i = 0; i < tbl->size; i++)
@@ -99,12 +127,4 @@ int get_time_accessed(recency_table *tbl, uint32_t addr)
         }
     }
     return -1;
-}
-
-void print_recently_accessed_pgs(recency_table *tbl)
-{
-    for (int i = 0; i < tbl->size; i++)
-    {
-        printf("Page number: 0x%08X, time accessed: %d\n", tbl->table[i]->address, tbl->table[i]->time_accessed);
-    }
 }

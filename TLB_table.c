@@ -1,5 +1,16 @@
 #include "TLB_table.h"
 
+/**
+ * Halie Do
+ * 827707836
+ */
+
+/**
+ * @brief - create and initialize TLB (Translation lookalike buffer) table
+ *
+ * @param capacity - used to allocate size of the tlb table
+ * @return - initialized tlb table
+ */
 TLB_table *create_tlb_table(int capacity)
 {
     TLB_table *tlb = (TLB_table *)malloc(sizeof(TLB_table));
@@ -8,8 +19,17 @@ TLB_table *create_tlb_table(int capacity)
     tlb->capacity = capacity;
     return tlb;
 }
-void add_to_table(TLB_table *tlb, uint32_t addr, int frame) {
-    if (table_full(tlb)) {
+
+/**
+ * @brief - add an entry to tlb table
+ *
+ * @param - virtual page number to be added
+ * @param - frame number associated with the virtual page number
+ */
+void add_to_table(TLB_table *tlb, uint32_t addr, int frame)
+{
+    if (table_full(tlb))
+    {
         return;
     }
     TLB_entry *new_entry = (TLB_entry *)malloc(sizeof(TLB_entry));
@@ -19,65 +39,65 @@ void add_to_table(TLB_table *tlb, uint32_t addr, int frame) {
     tlb->size++;
 }
 
-int get_least_recent_index(TLB_table *tlb) {
-    int index_to_remove = 0;
-    for (int i = 0; i < tlb->size; i++) {
-        if (tlb->table[i]->frame_number > tlb->table[index_to_remove]->frame_number) {
-            index_to_remove = i;
-        }
-    }
-    return index_to_remove;
-}
-
-void delete_index_from_table(TLB_table *tlb, int index) {
-    free(tlb->table[index]);
-    for (int i = index; i < tlb->size - 1; i++) {
-        tlb->table[i] = tlb->table[i + 1];
-    }
-    tlb->table[tlb->size] = NULL;
-    tlb->size--;
-}
-
-void delete_from_table(TLB_table *tlb, uint32_t address) {
+/**
+ * @brief - delete an entry with the target address from the tlb table
+ *
+ * @param tlb - pointer to tlb table struct
+ * @param address - address to remove from table
+ */
+void delete_from_table(TLB_table *tlb, uint32_t address)
+{
     int shiftStart;
-    //find the address in the table
-    for (int i = 0; i < tlb->size; i++) {
-        if (tlb->table[i] == NULL) {
+    // find the address in the table
+    for (int i = 0; i < tlb->size; i++)
+    {
+        if (tlb->table[i] == NULL)
+        {
             printf("NULL entry\n");
             continue;
         }
-        if (tlb->table[i]->address == address) {
+        if (tlb->table[i]->address == address)
+        {
             free(tlb->table[i]);
             tlb->table[i] = NULL;
             shiftStart = i;
             break;
         }
     }
-    //shift all entries to the left
+    // shift all entries to the left
     for (int i = shiftStart; i < tlb->size - 1; i++)
     {
         tlb->table[i] = tlb->table[i + 1];
     }
-    //set the last entry to NULL
+    // set the last entry to NULL
     tlb->table[tlb->size] = NULL;
     tlb->size--;
 }
 
-int get_frame_number(TLB_table *tlb, uint32_t address) {
-    for (int i = 0; i < tlb->size; i++) {
-        if (tlb->table[i]->address == address) {
+/**
+ * @brief - return frame number associated with given virtual page number
+ *
+ * @param - pointer to tlb table
+ * @param address - address to look up
+ */
+int get_frame_number(TLB_table *tlb, uint32_t address)
+{
+    for (int i = 0; i < tlb->size; i++)
+    {
+        if (tlb->table[i]->address == address)
+        { // address found
             return tlb->table[i]->frame_number;
         }
     }
-    return -1;
+    return -1; // no frame number found, meaning address wasn't in the table
 }
 
-bool table_full(TLB_table *tlb) {
+/**
+ * @brief - return true if tlb table is full, otherwise false
+ *
+ * @param tlb - pointer to tlb table
+ */
+bool table_full(TLB_table *tlb)
+{
     return tlb->size == tlb->capacity;
-}
-
-void print_table(TLB_table *tlb) {
-    for (int i = 0; i < tlb->size; i++) {
-        printf("address: 0x%08X, frame: %d\n", tlb->table[i]->address, tlb->table[i]->frame_number);
-    }
 }

@@ -133,7 +133,7 @@ static uint32_t get_virtual_page_number(uint32_t addr, uint32_t *num_of_mask_bit
         mask = mask << 1;
         mask = mask | 1;
     }
-    mask = mask << (ADDRESS_LENGTH - bits_to_mask);
+    mask = mask << (ADDRESS_LENGTH - bits_to_mask); // mask the # of bits needed to be masked at the beginning of the address
     return (addr & mask);
 }
 
@@ -172,16 +172,6 @@ int main(int argc, char **argv)
 
     // parse arguments
     struct args *args = parse_opt(argc, argv);
-    // printf("Parsed args:\n");
-    // printf("Cache capacity (-c): %d, num of addresses (-n): %d, output mode (-o): %s\n", args->cache_capacity, args->number_of_addresses, args->output_mode);
-
-    // DELETE LATER
-    //  printf("cache_capacity: %d\n", args->cache_capacity);
-    //  printf("number_of_addresses: %d\n", args->number_of_addresses);
-    //  printf("output_mode:%s\n", args->output_mode);
-    //  printf("mode 5:%s\n", modes[4]);
-    //  bool matches = strcmp(args->output_mode, modes[4]) == 0;
-    //  printf("offset matches: %d\n", matches);
 
     // check for filename
     char *filename = get_filename(argc, argv);
@@ -199,10 +189,6 @@ int main(int argc, char **argv)
     // read the rest of the arguments into an int array
     depth = argc - args->number_of_args - 1;
     uint32_t *depth_array = get_depth(depth, argc, argv);
-    // for (int i = 0; i < depth; i++)
-    // {
-    //     printf("depth_array[%d]: %d\n", i, depth_array[i]);
-    // }
 
     // check for validity
     check_for_validity(depth_array, depth);
@@ -239,7 +225,7 @@ int main(int argc, char **argv)
 
         uint32_t virtual_pg_num = get_virtual_page_number(trace.addr, depth_array, depth);
         uint32_t *indices = get_page_indices(trace.addr, page_table->bitmask, page_table->shift, depth);
-        map page_info = record_page_access(page_table, page_table->root, indices, 0, depth, iteration, &frame_number, virtual_pg_num);
+        map page_info = lookup_vpn2pfn(page_table, page_table->root, indices, 0, depth, iteration, &frame_number, virtual_pg_num);
         uint32_t offset = get_offset(trace.addr, offset_size);
         uint32_t virtual_address = get_virtual_address(page_info.frame_number, offset, offset_size);
 
@@ -249,11 +235,11 @@ int main(int argc, char **argv)
         {
             // check if the address is in the recently accessed pages
             int time_accessed = get_time_accessed(recent_pages_tbl, page_info.address);
-            if (time_accessed == -1)
+            if (time_accessed == -1) // insert address if not found in recent table
             {
                 add_to_recent(recent_pages_tbl, page_info.address, page_info.time_accessed);
             }
-            else
+            else // updated time accessed if time was found
             {
                 update_time_accessed(recent_pages_tbl, page_info.address, page_info.time_accessed);
             }
@@ -264,7 +250,7 @@ int main(int argc, char **argv)
                 // add to TLB
                 if (table_full(tlb))
                 {
-                    int address_to_remove = get_address_of_least_recently_accessed(recent_pages_tbl);
+                    uint32_t address_to_remove = get_address_of_least_recently_accessed(recent_pages_tbl);
                     // delete from TLB
                     delete_from_table(tlb, address_to_remove);
                 }
