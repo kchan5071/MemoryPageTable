@@ -44,6 +44,7 @@ page_table *init_page_table(uint32_t *levels, uint32_t *bitmask, uint32_t *shift
     new_table->bitmask = bitmask;
     new_table->shift = shift;
     new_table->entry_count = entry_counts;
+    new_table->num_of_entries = entry_counts[0];
     return new_table;
 }
 
@@ -82,21 +83,27 @@ map record_page_access(page_table *table, node *root, uint32_t *page_indices, in
 {
     // base case
     node *current = root;
-    if (at_level == depth) {
+    if (at_level == depth)
+    {
+        bool hit = true;
         // check if the page has been accessed before
-        if (current->time_accessed == -1) {
+        if (current->time_accessed == -1)
+        {
             current->frame_number = *frame;
             ++(*frame);
+            hit = false;
         }
         current->time_accessed = time_accessed;
-        map page_info = {vpn, current->time_accessed, current->frame_number};
+        map page_info = {vpn, current->time_accessed, current->frame_number, hit};
         return page_info;
     }
     // recursive case
     uint32_t index = page_indices[at_level];
     // create new node if it doesn't exist
-    if (current->children[index] == NULL) {
+    if (current->children[index] == NULL)
+    {
         current->children[index] = create_node(index, table->entry_count[at_level + 1]);
+        table->num_of_entries += table->entry_count[at_level + 1];
     }
     // traverse to next level
     current = current->children[index];

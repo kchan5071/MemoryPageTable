@@ -46,10 +46,20 @@ static struct args *parse_opt(int argc, char **argv)
         switch (opt)
         {
         case 'c':
+            if (atoi(optarg) < 0)
+            {
+                fprintf(stderr, "Cache capacity must be a number, greater than or equal to 0.\n");
+                exit(EXIT_FAILURE);
+            }
             args->cache_capacity = atoi(optarg);
             args->number_of_args += 2;
             break;
         case 'n':
+            if (atoi(optarg) < 0)
+            {
+                fprintf(stderr, "Number of memory accesses must be a number, greater than 0.\n");
+                exit(EXIT_FAILURE);
+            }
             args->number_of_addresses = atoi(optarg);
             args->number_of_args += 2;
             break;
@@ -110,7 +120,8 @@ static void check_for_validity(uint32_t *depth_array, int number_of_bits)
     }
 }
 
-static uint32_t get_virtual_page_number(uint32_t addr, uint32_t *num_of_mask_bits_arr, int num_of_levels) {
+static uint32_t get_virtual_page_number(uint32_t addr, uint32_t *num_of_mask_bits_arr, int num_of_levels)
+{
     uint32_t bits_to_mask = 0;
     for (int i = 0; i < num_of_levels; i++)
     {
@@ -126,11 +137,13 @@ static uint32_t get_virtual_page_number(uint32_t addr, uint32_t *num_of_mask_bit
     return (addr & mask);
 }
 
-static uint32_t get_virtual_address(uint32_t virtual_page_number, uint32_t offset, int offset_size) {
+static uint32_t get_virtual_address(uint32_t virtual_page_number, uint32_t offset, int offset_size)
+{
     return (virtual_page_number << offset_size) + offset;
 }
 
-static uint32_t get_offset(int addr, int offset_size) {
+static uint32_t get_offset(int addr, int offset_size)
+{
     uint32_t mask = 1;
     for (int b = 1; b < offset_size; b++)
     {
@@ -140,15 +153,18 @@ static uint32_t get_offset(int addr, int offset_size) {
     return addr & mask;
 }
 
-static uint32_t get_offset_size(uint32_t* depth_array, int depth) {
+static uint32_t get_offset_size(uint32_t *depth_array, int depth)
+{
     int offset_size = 32;
-    for (int i = 0; i < depth; i++) {
+    for (int i = 0; i < depth; i++)
+    {
         offset_size -= depth_array[i];
     }
     return offset_size;
 }
 
-int main(int argc, char **argv) {
+int main(int argc, char **argv)
+{
     char modes[5][20] = {"bitmasks", "va2pa", "va2pa_atc_ptwalk", "vpn2pfn", "offset"};
 
     // read args
@@ -156,6 +172,8 @@ int main(int argc, char **argv) {
 
     // parse arguments
     struct args *args = parse_opt(argc, argv);
+    // printf("Parsed args:\n");
+    // printf("Cache capacity (-c): %d, num of addresses (-n): %d, output mode (-o): %s\n", args->cache_capacity, args->number_of_addresses, args->output_mode);
 
     // DELETE LATER
     //  printf("cache_capacity: %d\n", args->cache_capacity);
@@ -200,7 +218,7 @@ int main(int argc, char **argv) {
     // create trace file and trace struct
     p2AddrTr trace = {0};
 
-    //get size of offset
+    // get size of offset
     int offset_size = get_offset_size(depth_array, depth);
 
     // loop through all addresses
@@ -211,82 +229,104 @@ int main(int argc, char **argv) {
     int frame_number = 0;
     bool finish_logging = false;
 
-    while (NextAddress(trace_file, &trace)) {
-        //check if there are addresses or if we have read all the addresses
-        if (args->number_of_addresses != -1 && iteration == args->number_of_addresses) {
+    while (NextAddress(trace_file, &trace))
+    {
+        // check if there are addresses or if we have read all the addresses
+        if (args->number_of_addresses != -1 && iteration == args->number_of_addresses)
+        {
             break;
         }
-        
+
         uint32_t virtual_pg_num = get_virtual_page_number(trace.addr, depth_array, depth);
         uint32_t *indices = get_page_indices(trace.addr, page_table->bitmask, page_table->shift, depth);
         map page_info = record_page_access(page_table, page_table->root, indices, 0, depth, iteration, &frame_number, virtual_pg_num);
         uint32_t offset = get_offset(trace.addr, offset_size);
         uint32_t virtual_address = get_virtual_address(page_info.frame_number, offset, offset_size);
 
-        // check if the address is in the recently accessed pages
-        bool recently_accessed = false;
-        int time_accessed = get_time_accessed(recent_pages_tbl, page_info.address);
-        if (time_accessed == -1) {
-            add_to_recent(recent_pages_tbl, page_info.address, page_info.time_accessed);
-        }
-        else {
-            update_time_accessed(recent_pages_tbl, page_info.address, page_info.time_accessed);
-            recently_accessed = true;
-            page_table_hits++;
-        }
-        
-        // check if the address is in the TLB
         bool found_in_tlb = false;
-        if (args->cache_capacity != 0) {
-            found_in_tlb = get_frame_number(tlb, virtual_address) != -1;
-            if (!found_in_tlb && !table_full(tlb)) {      // not in TLB and TLB not full
-                // add to TLB
-                add_to_table(tlb, virtual_pg_num, page_info.frame_number);
+        bool tlb_hit = false;
+        if (args->cache_capacity != 0) // case when TLB is implemented
+        {
+            // check if the address is in the recently accessed pages
+            int time_accessed = get_time_accessed(recent_pages_tbl, page_info.address);
+            if (time_accessed == -1)
+            {
+                add_to_recent(recent_pages_tbl, page_info.address, page_info.time_accessed);
             }
-            else if (!found_in_tlb && (tlb)) {  // not in TLB and TLB full
-                // get least recently accessed index
-                int address_to_remove = get_address_of_least_recently_accessed(recent_pages_tbl);
-                // delete from TLB
-                delete_from_table(tlb, address_to_remove);
-                // add to TLB
-                add_to_table(tlb, virtual_pg_num, page_info.frame_number);
+            else
+            {
+                update_time_accessed(recent_pages_tbl, page_info.address, page_info.time_accessed);
             }
-            else if (found_in_tlb) {    // in TLB
-                cache_hits++;
+            // check if the address is in the TLB
+            found_in_tlb = get_frame_number(tlb, page_info.address) != -1;
+            if (!found_in_tlb)
+            { // not in TLB and TLB not full
+                // add to TLB
+                if (table_full(tlb))
+                {
+                    int address_to_remove = get_address_of_least_recently_accessed(recent_pages_tbl);
+                    // delete from TLB
+                    delete_from_table(tlb, address_to_remove);
+                }
+                add_to_table(tlb, page_info.address, page_info.frame_number);
+                if (page_info.hit)
+                {
+                    ++page_table_hits;
+                }
+            }
+            else
+            { // in TLB
+                tlb_hit = true;
+                ++cache_hits;
+            }
+        }
+        else
+        {
+            if (page_info.hit)
+            {
+                ++page_table_hits;
             }
         }
 
         // log accesses
-        if (strcmp(args->output_mode, modes[1]) == 0) { // va2pa
+        if (strcmp(args->output_mode, modes[1]) == 0)
+        { // va2pa
             log_virtualAddr2physicalAddr(trace.addr, virtual_address);
         }
-        else if (strcmp(args->output_mode, modes[2]) == 0) { // va2pa_atc_ptwalk
-            log_va2pa_ATC_PTwalk(trace.addr, virtual_address, recently_accessed, found_in_tlb);
+        else if (strcmp(args->output_mode, modes[2]) == 0)
+        { // va2pa_atc_ptwalk
+            log_va2pa_ATC_PTwalk(trace.addr, virtual_address, tlb_hit, page_info.hit);
         }
-        else if (strcmp(args->output_mode, modes[3]) == 0) { // vpn2pfn
+        else if (strcmp(args->output_mode, modes[3]) == 0)
+        { // vpn2pfn
             log_pagemapping(depth, indices, page_info.frame_number);
         }
-        else if (strcmp(args->output_mode, modes[4]) == 0) { // offset
+        else if (strcmp(args->output_mode, modes[4]) == 0)
+        { // offset
             hexnum(offset);
         }
-        else {
+        else
+        {
             finish_logging = true;
         }
 
         iteration++;
     }
-    if (!finish_logging) {
+    if (!finish_logging)
+    {
         return 0;
     }
-    if (strcmp(args->output_mode, modes[0]) == 0) { // bitmasks
+    if (strcmp(args->output_mode, modes[0]) == 0)
+    { // bitmasks
         log_bitmasks(depth, page_table->bitmask);
     }
-    else if (strcmp(args->output_mode, modes[4]) != 0) {
-        log_summary(pow(2, offset_size), 
-                    cache_hits, page_table_hits, 
-                    iteration, 
-                    frame_number, 
-                    recent_pages_tbl->size);
+    else if (strcmp(args->output_mode, modes[4]) != 0)
+    {
+        log_summary(pow(2, offset_size),
+                    cache_hits, page_table_hits,
+                    iteration,
+                    frame_number,
+                    page_table->num_of_entries);
     }
     return 0;
 }

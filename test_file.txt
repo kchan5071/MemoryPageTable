@@ -1,7 +1,10 @@
 make clean
+make[1]: Entering directory '/mnt/c/Users/swede/cs480_PA3/MemoryPageTable'
 rm -f pagingwithatc
 rm -f *.o
+make[1]: Leaving directory '/mnt/c/Users/swede/cs480_PA3/MemoryPageTable'
 make pagingwithatc
+make[1]: Entering directory '/mnt/c/Users/swede/cs480_PA3/MemoryPageTable'
 gcc -c tracereader.c -o tracereader.o
 gcc -c log.c -o log.o
 gcc -c page_table.c -o page_table.o
@@ -124,5 +127,7 @@ Total hit percentage: 80.21%, miss percentage: 19.79%
 Frames allocated: 1583
 Number of page table entries: 1583
 make clean
+make[1]: Entering directory '/mnt/c/Users/swede/cs480_PA3/MemoryPageTable'
 rm -f pagingwithatc
 rm -f *.o
+make[1]: Leaving directory '/mnt/c/Users/swede/cs480_PA3/MemoryPageTable'
