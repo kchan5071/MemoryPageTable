@@ -124,9 +124,10 @@ static uint32_t get_virtual_page_number(uint32_t addr, uint32_t *num_of_mask_bit
 {
     uint32_t bits_to_mask = 0;
     for (int i = 0; i < num_of_levels; i++)
-    {
+    { // add number of mask bits in each level to get total # of bits to mask
         bits_to_mask += num_of_mask_bits_arr[i];
     }
+    // create mask
     unsigned int mask = 1;
     for (int b = 1; b < bits_to_mask; b++)
     {
@@ -134,7 +135,7 @@ static uint32_t get_virtual_page_number(uint32_t addr, uint32_t *num_of_mask_bit
         mask = mask | 1;
     }
     mask = mask << (ADDRESS_LENGTH - bits_to_mask); // mask the # of bits needed to be masked at the beginning of the address
-    return (addr & mask);
+    return (addr & mask);                           // return virtual page number (masked address)
 }
 
 static uint32_t get_virtual_address(uint32_t virtual_page_number, uint32_t offset, int offset_size)
@@ -211,7 +212,6 @@ int main(int argc, char **argv)
     long iteration = 0;
     long cache_hits = 0;
     long page_table_hits = 0;
-    long max = 0;
     int frame_number = 0;
     bool finish_logging = false;
 
@@ -266,7 +266,7 @@ int main(int argc, char **argv)
                 ++cache_hits;
             }
         }
-        else
+        else // in case tlb miss & page table hit => increment # of page table hits
         {
             if (page_info.hit)
             {
