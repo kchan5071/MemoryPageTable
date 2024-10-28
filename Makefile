@@ -37,11 +37,12 @@ run-tests:
 run:
 	make clean
 	make pagingwithatc
-#   ./pagingwithatc -o bitmasks trace_files/trace.tr 4 8 8
-#	./pagingwithatc -n 30 -o offset trace_files/trace.tr 8 8 4
-#	./pagingwithatc -n 20 -o vpn2pfn trace_files/trace.tr 6 4 8
-#	./pagingwithatc -n 20 -o va2pa trace_files/trace.tr 20
-#	./pagingwithatc -n 20 -c 5 -o va2pa_atc_ptwalk trace_files/trace.tr 4 8 6
+	./pagingwithatc trace_files/trace.tr 8 8 4
+	./pagingwithatc -o bitmasks trace_files/trace.tr 4 8 8
+	./pagingwithatc -n 30 -o offset trace_files/trace.tr 8 8 4
+	./pagingwithatc -n 20 -o vpn2pfn trace_files/trace.tr 6 4 8
+	./pagingwithatc -n 20 -o va2pa trace_files/trace.tr 20
+	./pagingwithatc -n 20 -c 5 -o va2pa_atc_ptwalk trace_files/trace.tr 4 8 6
 	./pagingwithatc -n 8000 -o summary trace_files/trace.tr 24
 	make clean
 

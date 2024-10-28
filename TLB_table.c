@@ -17,7 +17,6 @@ void add_to_table(TLB_table *tlb, uint32_t addr, int frame) {
     new_entry->frame_number = frame;
     tlb->table[tlb->size] = new_entry;
     tlb->size++;
-    printf("Added Successfully\n");
 }
 
 int get_least_recent_index(TLB_table *tlb) {
@@ -61,7 +60,6 @@ void delete_from_table(TLB_table *tlb, uint32_t address) {
     }
     //set the last entry to NULL
     tlb->table[tlb->size] = NULL;
-    printf("Deleted successfully\n");
     tlb->size--;
 }
 

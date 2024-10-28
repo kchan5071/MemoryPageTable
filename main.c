@@ -209,6 +209,7 @@ int main(int argc, char **argv) {
     long page_table_hits = 0;
     long max = 0;
     int frame_number = 0;
+    bool finish_logging = false;
 
     while (NextAddress(trace_file, &trace)) {
         //check if there are addresses or if we have read all the addresses
@@ -268,13 +269,19 @@ int main(int argc, char **argv) {
         else if (strcmp(args->output_mode, modes[4]) == 0) { // offset
             hexnum(offset);
         }
+        else {
+            finish_logging = true;
+        }
 
         iteration++;
+    }
+    if (!finish_logging) {
+        return 0;
     }
     if (strcmp(args->output_mode, modes[0]) == 0) { // bitmasks
         log_bitmasks(depth, page_table->bitmask);
     }
-    if (strcmp(args->output_mode, modes[4]) != 0) {
+    else if (strcmp(args->output_mode, modes[4]) != 0) {
         log_summary(pow(2, offset_size), 
                     cache_hits, page_table_hits, 
                     iteration, 

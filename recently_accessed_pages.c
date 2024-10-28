@@ -67,7 +67,6 @@ int get_time_accessed(recency_table *tbl, int addr)
 
 void print_recently_accessed_pgs(recency_table *tbl)
 {
-    printf("Recently accessed page numbers: \n");
     for (int i = 0; i < tbl->size; i++)
     {
         printf("Page number: 0x%08X, time accessed: %d\n", tbl->table[i]->address, tbl->table[i]->time_accessed);
