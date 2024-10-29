@@ -75,7 +75,7 @@ page_table *build_page_table(char **argv, int *depth, uint32_t *depth_array)
 
 // TODO: fix docs
 /**
- * @brief: record the page access in the page table
+ * @brief: look up the page access in the page table
  *
  * @param table: the page table to record the access in
  * @param root: the root of the page table
@@ -83,7 +83,7 @@ page_table *build_page_table(char **argv, int *depth, uint32_t *depth_array)
  * @param at_level: the current level in the page table
  * @param depth: the number of levels in the page table
  *
- * @return: the number of times the page has been accessed
+ * @return: the info of page if it was in the table
  */
 map *lookup_vpn2pfn(page_table *table, node *root, uint32_t *page_indices, int at_level, int depth)
 {
@@ -114,8 +114,10 @@ map *lookup_vpn2pfn(page_table *table, node *root, uint32_t *page_indices, int a
  * @param page_indices: the page indices to record the access for
  * @param at_level: the current level in the page table
  * @param depth: the number of levels in the page table
+ * @param time_accessed: time the page was accessed
+ * @param frame: pointer to variable holding frame number for the address
+ * @param vpn: virtual page number extracted from the read address
  *
- * @return: the number of times the page has been accessed
  */
 void insert_vpn2pfn(page_table *table, node *root, uint32_t *page_indices, int at_level, int depth, int time_accessed, int *frame, uint32_t vpn)
 {
