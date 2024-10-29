@@ -214,6 +214,7 @@ int main(int argc, char **argv)
     long page_table_hits = 0;
     int frame_number = 0;
     bool finish_logging = false;
+    map *page_info = NULL;
 
     while (NextAddress(trace_file, &trace))
     {
@@ -254,7 +255,7 @@ int main(int argc, char **argv)
                     // delete from TLB
                     delete_from_table(tlb, address_to_remove);
                 }
-                map *page_info = lookup_vpn2pfn(page_table, page_table->root, indices, 0, depth);
+                page_info = lookup_vpn2pfn(page_table, page_table->root, indices, 0, depth);
                 if (page_info)
                 {
                     ++page_table_hits;
@@ -273,7 +274,7 @@ int main(int argc, char **argv)
         }
         else
         {
-            map *page_info = lookup_vpn2pfn(page_table, page_table->root, indices, 0, depth);
+            page_info = lookup_vpn2pfn(page_table, page_table->root, indices, 0, depth);
             if (page_info)
             {
                 ++page_table_hits;
@@ -284,7 +285,7 @@ int main(int argc, char **argv)
                 insert_vpn2pfn(page_table, page_table->root, indices, 0, depth, iteration, &frame_number, virtual_pg_num);
             }
         }
-        map *page_info = lookup_vpn2pfn(page_table, page_table->root, indices, 0, depth);
+        page_info = lookup_vpn2pfn(page_table, page_table->root, indices, 0, depth);
         uint32_t virtual_address = get_virtual_address(page_info->frame_number, offset, offset_size);
         // log accesses
         if (strcmp(args->output_mode, modes[1]) == 0)
