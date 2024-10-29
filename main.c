@@ -248,7 +248,7 @@ int main(int argc, char **argv)
             tlb_hit = get_frame_number(tlb, virtual_pg_num) != -1;
             if (!tlb_hit)
             { // not in TLB and TLB not full
-              //         // add to TLB
+              // add to TLB
                 if (table_full(tlb))
                 {
                     uint32_t address_to_remove = get_address_of_least_recently_accessed(recent_pages_tbl);
@@ -256,35 +256,36 @@ int main(int argc, char **argv)
                     delete_from_table(tlb, address_to_remove);
                 }
                 page_info = lookup_vpn2pfn(page_table, page_table->root, indices, 0, depth);
-                if (page_info)
+                if (page_info) // if page was found in page table -> increment page table hits
                 {
                     ++page_table_hits;
                 }
-                else
+                else // if page was not found, insert new entry
                 {
                     insert_vpn2pfn(page_table, page_table->root, indices, 0, depth, iteration, &frame_number, virtual_pg_num);
                     page_info = lookup_vpn2pfn(page_table, page_table->root, indices, 0, depth);
                 }
-                add_to_table(tlb, virtual_pg_num, page_info->frame_number);
+                add_to_table(tlb, virtual_pg_num, page_info->frame_number); // add new virtual page number & its frame number into tlb table
             }
-            else
+            else // if virtual address was found in tlb table -> increment cache hits
             {
                 ++cache_hits;
             }
         }
-        else
+        else // case: no implementation of tlb or recency table because cache capacity was not specified
         {
             page_info = lookup_vpn2pfn(page_table, page_table->root, indices, 0, depth);
-            if (page_info)
+            if (page_info) // page found in table
             {
                 ++page_table_hits;
                 pg_hit = true;
             }
-            else
+            else // page not found -> insert new entry in table
             {
                 insert_vpn2pfn(page_table, page_table->root, indices, 0, depth, iteration, &frame_number, virtual_pg_num);
             }
         }
+
         page_info = lookup_vpn2pfn(page_table, page_table->root, indices, 0, depth);
         uint32_t virtual_address = get_virtual_address(page_info->frame_number, offset, offset_size);
         // log accesses
