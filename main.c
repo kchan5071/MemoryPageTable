@@ -228,9 +228,7 @@ int main(int argc, char **argv)
 
         uint32_t virtual_pg_num = get_virtual_page_number(trace.addr, depth_array, depth);
         uint32_t *indices = get_page_indices(trace.addr, page_table->bitmask, page_table->shift, depth);
-        // map *page_info = lookup_vpn2pfn(page_table, page_table->root, indices, 0, depth);
         uint32_t offset = get_offset(trace.addr, offset_size);
-        // uint32_t virtual_address = get_virtual_address(frame_number, offset, offset_size);
 
         if (args->cache_capacity != 0)
         {
@@ -258,6 +256,7 @@ int main(int argc, char **argv)
                 page_info = lookup_vpn2pfn(page_table, page_table->root, indices, 0, depth);
                 if (page_info) // if page was found in page table -> increment page table hits
                 {
+                    pg_hit = true;
                     ++page_table_hits;
                 }
                 else // if page was not found, insert new entry
