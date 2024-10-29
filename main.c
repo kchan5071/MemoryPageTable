@@ -217,6 +217,8 @@ int main(int argc, char **argv)
 
     while (NextAddress(trace_file, &trace))
     {
+        bool pg_hit = false;
+        bool tlb_hit = false;
         // check if there are addresses or if we have read all the addresses
         if (args->number_of_addresses != -1 && iteration == args->number_of_addresses)
         {
@@ -225,55 +227,65 @@ int main(int argc, char **argv)
 
         uint32_t virtual_pg_num = get_virtual_page_number(trace.addr, depth_array, depth);
         uint32_t *indices = get_page_indices(trace.addr, page_table->bitmask, page_table->shift, depth);
-        map page_info = lookup_vpn2pfn(page_table, page_table->root, indices, 0, depth, iteration, &frame_number, virtual_pg_num);
+        // map *page_info = lookup_vpn2pfn(page_table, page_table->root, indices, 0, depth);
         uint32_t offset = get_offset(trace.addr, offset_size);
-        uint32_t virtual_address = get_virtual_address(page_info.frame_number, offset, offset_size);
+        // uint32_t virtual_address = get_virtual_address(frame_number, offset, offset_size);
 
-        bool found_in_tlb = false;
-        bool tlb_hit = false;
-        if (args->cache_capacity != 0) // case when TLB is implemented
+        if (args->cache_capacity != 0)
         {
             // check if the address is in the recently accessed pages
-            int time_accessed = get_time_accessed(recent_pages_tbl, page_info.address);
+            int time_accessed = get_time_accessed(recent_pages_tbl, virtual_pg_num);
             if (time_accessed == -1) // insert address if not found in recent table
             {
-                add_to_recent(recent_pages_tbl, page_info.address, page_info.time_accessed);
+                add_to_recent(recent_pages_tbl, virtual_pg_num, iteration);
             }
             else // updated time accessed if time was found
             {
-                update_time_accessed(recent_pages_tbl, page_info.address, page_info.time_accessed);
+                update_time_accessed(recent_pages_tbl, virtual_pg_num, iteration);
             }
             // check if the address is in the TLB
-            found_in_tlb = get_frame_number(tlb, page_info.address) != -1;
-            if (!found_in_tlb)
+            tlb_hit = get_frame_number(tlb, virtual_pg_num) != -1;
+            if (!tlb_hit)
             { // not in TLB and TLB not full
-                // add to TLB
+              //         // add to TLB
                 if (table_full(tlb))
                 {
                     uint32_t address_to_remove = get_address_of_least_recently_accessed(recent_pages_tbl);
                     // delete from TLB
                     delete_from_table(tlb, address_to_remove);
                 }
-                add_to_table(tlb, page_info.address, page_info.frame_number);
-                if (page_info.hit)
+                map *page_info = lookup_vpn2pfn(page_table, page_table->root, indices, 0, depth);
+                if (page_info)
                 {
                     ++page_table_hits;
                 }
+                else
+                {
+                    insert_vpn2pfn(page_table, page_table->root, indices, 0, depth, iteration, &frame_number, virtual_pg_num);
+                    page_info = lookup_vpn2pfn(page_table, page_table->root, indices, 0, depth);
+                }
+                add_to_table(tlb, virtual_pg_num, page_info->frame_number);
             }
             else
-            { // in TLB
-                tlb_hit = true;
+            {
                 ++cache_hits;
             }
         }
-        else // in case tlb miss & page table hit => increment # of page table hits
+        else
         {
-            if (page_info.hit)
+            map *page_info = lookup_vpn2pfn(page_table, page_table->root, indices, 0, depth);
+            if (page_info)
             {
                 ++page_table_hits;
+                pg_hit = true;
+            }
+            else
+            {
+                insert_vpn2pfn(page_table, page_table->root, indices, 0, depth, iteration, &frame_number, virtual_pg_num);
             }
         }
-
+        map *page_info = lookup_vpn2pfn(page_table, page_table->root, indices, 0, depth);
+        uint32_t virtual_address = get_virtual_address(page_info->frame_number, offset, offset_size);
         // log accesses
         if (strcmp(args->output_mode, modes[1]) == 0)
         { // va2pa
@@ -281,11 +293,11 @@ int main(int argc, char **argv)
         }
         else if (strcmp(args->output_mode, modes[2]) == 0)
         { // va2pa_atc_ptwalk
-            log_va2pa_ATC_PTwalk(trace.addr, virtual_address, tlb_hit, page_info.hit);
+            log_va2pa_ATC_PTwalk(trace.addr, virtual_address, tlb_hit, pg_hit);
         }
         else if (strcmp(args->output_mode, modes[3]) == 0)
         { // vpn2pfn
-            log_pagemapping(depth, indices, page_info.frame_number);
+            log_pagemapping(depth, indices, page_info->frame_number);
         }
         else if (strcmp(args->output_mode, modes[4]) == 0)
         { // offset

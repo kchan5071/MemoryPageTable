@@ -19,11 +19,13 @@
 node *create_node(int address, int children_count)
 {
     node *new_node = (node *)malloc((int)sizeof(node) + (children_count * (int)sizeof(node *)));
-    new_node->address = address;
-    new_node->frame_number = -1;
-    // initialize children array of size children_count
+    // // initialize children array of size children_count
     new_node->children = (node **)calloc((int)sizeof(node), children_count);
-    new_node->time_accessed = -1;
+    new_node->page_info = (map *)malloc(sizeof(map));
+    new_node->page_info->address = address;
+    new_node->page_info->frame_number = -1;
+    new_node->page_info->time_accessed = -1;
+
     return new_node;
 }
 
@@ -71,6 +73,7 @@ page_table *build_page_table(char **argv, int *depth, uint32_t *depth_array)
     return table;
 }
 
+// TODO: fix docs
 /**
  * @brief: record the page access in the page table
  *
@@ -82,23 +85,53 @@ page_table *build_page_table(char **argv, int *depth, uint32_t *depth_array)
  *
  * @return: the number of times the page has been accessed
  */
-map lookup_vpn2pfn(page_table *table, node *root, uint32_t *page_indices, int at_level, int depth, int time_accessed, int *frame, uint32_t vpn)
+map *lookup_vpn2pfn(page_table *table, node *root, uint32_t *page_indices, int at_level, int depth)
 {
     // base case
     node *current = root;
     if (at_level == depth)
     {
-        bool hit = true;
+        if (current->page_info->frame_number != -1)
+            return current->page_info;
+    }
+    // TODO: fix later
+    //  recursive case
+    uint32_t index = page_indices[at_level];
+    if (current->children[index] == NULL)
+    {
+        return NULL;
+    }
+    // traverse to next level
+    current = current->children[index];
+    return lookup_vpn2pfn(table, current, page_indices, at_level + 1, depth);
+}
+
+/**
+ * @brief: record the page access in the page table
+ *
+ * @param table: the page table to record the access in
+ * @param root: the root of the page table
+ * @param page_indices: the page indices to record the access for
+ * @param at_level: the current level in the page table
+ * @param depth: the number of levels in the page table
+ *
+ * @return: the number of times the page has been accessed
+ */
+void insert_vpn2pfn(page_table *table, node *root, uint32_t *page_indices, int at_level, int depth, int time_accessed, int *frame, uint32_t vpn)
+{
+    // base case
+    node *current = root;
+    if (at_level == depth)
+    {
         // check if the page has been accessed before
-        if (current->time_accessed == -1)
+        if (current->page_info->time_accessed == -1)
         {
-            current->frame_number = *frame;
+            current->page_info->address = vpn;
+            current->page_info->frame_number = *frame;
             ++(*frame);
-            hit = false; // address has not previously been in page table - page table miss
         }
-        current->time_accessed = time_accessed;
-        map page_info = {vpn, current->time_accessed, current->frame_number, hit};
-        return page_info;
+        current->page_info->time_accessed = time_accessed;
+        return;
     }
     // recursive case
     uint32_t index = page_indices[at_level];
@@ -110,5 +143,5 @@ map lookup_vpn2pfn(page_table *table, node *root, uint32_t *page_indices, int at
     }
     // traverse to next level
     current = current->children[index];
-    return lookup_vpn2pfn(table, current, page_indices, at_level + 1, depth, time_accessed, frame, vpn);
+    insert_vpn2pfn(table, current, page_indices, at_level + 1, depth, time_accessed, frame, vpn);
 }
