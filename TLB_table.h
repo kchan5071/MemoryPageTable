@@ -26,7 +26,6 @@ int get_frame_number(TLB_table *tlb, uint32_t addr);
 bool table_full(TLB_table *tlb);
 int get_least_recent_index(TLB_table *tlb);
 void delete_index_from_table(TLB_table *tlb, int index);
-
 void print_table(TLB_table *tlb);
 
 #endif

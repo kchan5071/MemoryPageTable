@@ -101,3 +101,12 @@ bool table_full(TLB_table *tlb)
 {
     return tlb->size == tlb->capacity;
 }
+
+void print_table(TLB_table *tlb)
+{
+    printf("Current entries in TLB table: \n");
+    for (int i = 0; i < tlb->size; i++)
+    {
+        printf("%d. Address 0x%08X: %d\n", i, tlb->table[i]->address, tlb->table[i]->frame_number);
+    }
+}

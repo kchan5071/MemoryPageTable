@@ -78,19 +78,21 @@ void remove_oldest(recency_table *tbl)
  *
  * @param - pointer to recency table struct to look up
  */
-int get_address_of_least_recently_accessed(recency_table *tbl)
+uint32_t get_address_of_least_recently_accessed(recency_table *tbl, TLB_table *tlb)
 {
-    int last_accessed = tbl->table[0]->time_accessed;
-    int index = 0;
-    for (int i = 1; i < tbl->size; i++)
+    int last_accessed = get_time_accessed(tbl, tlb->table[0]->address);
+    uint32_t least_recently_accessed_pg = tlb->table[0]->address;
+    int curr_time_accessed;
+    for (int i = 0; i < tlb->size; i++)
     {
-        if (tbl->table[i]->time_accessed < last_accessed)
+        curr_time_accessed = get_time_accessed(tbl, tlb->table[i]->address);
+        if (curr_time_accessed < last_accessed)
         {
-            last_accessed = tbl->table[i]->time_accessed;
-            index = i;
+            last_accessed = curr_time_accessed;
+            least_recently_accessed_pg = tlb->table[i]->address;
         }
     }
-    return tbl->table[index]->address;
+    return least_recently_accessed_pg;
 }
 
 /**
