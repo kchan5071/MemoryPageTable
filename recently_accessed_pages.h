@@ -1,7 +1,6 @@
 #ifndef RECENTLY_ACCESSED_PAGES_H
 #define RECENTLY_ACCESSED_PAGES_H
 #include "page_table.h"
-#include "TLB_table.h"
 #include <stdbool.h>
 #define CAPACITY 10
 
@@ -23,12 +22,10 @@ typedef struct recency_table
 } recency_table;
 
 recency_table *create_recency_table();
-bool exists_in_table(recency_table *tbl, uint32_t addr);
 bool update_time_accessed(recency_table *tbl, uint32_t address, int time_accessed);
 void add_to_recent(recency_table *tbl, uint32_t addr, int time_accessed);
 void remove_oldest(recency_table *tbl);
 int get_index_of_least_recently_accessed(recency_table *tbl);
-uint32_t get_address_of_least_recently_accessed(recency_table *tbl, TLB_table *tlb);
 int get_time_accessed(recency_table *tbl, uint32_t address);
 
 #endif

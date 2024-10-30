@@ -38,8 +38,9 @@ bool update_time_accessed(recency_table *tbl, uint32_t address, int time_accesse
 }
 
 /**
- * @brief - Add a new entry (new address with the time it was most recently accessed)
+ * @brief - Add a new entry into recency table (new address with the time it was most recently accessed)
  *
+ * @param tbl - pointer to struct recency table where the update will be made
  * @param addr - Address to be added to the table
  * @param time_accessed - time accessed to be paired with the newly inserted address
  */
@@ -71,28 +72,6 @@ void remove_oldest(recency_table *tbl)
     }
     tbl->table[tbl->size] = NULL;
     tbl->size--;
-}
-
-/**
- * @brief - return address that was least recently accessed
- *
- * @param - pointer to recency table struct to look up
- */
-uint32_t get_address_of_least_recently_accessed(recency_table *tbl, TLB_table *tlb)
-{
-    int last_accessed = get_time_accessed(tbl, tlb->table[0]->address);
-    uint32_t least_recently_accessed_pg = tlb->table[0]->address;
-    int curr_time_accessed;
-    for (int i = 0; i < tlb->size; i++)
-    {
-        curr_time_accessed = get_time_accessed(tbl, tlb->table[i]->address);
-        if (curr_time_accessed < last_accessed)
-        {
-            last_accessed = curr_time_accessed;
-            least_recently_accessed_pg = tlb->table[i]->address;
-        }
-    }
-    return least_recently_accessed_pg;
 }
 
 /**

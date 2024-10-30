@@ -102,11 +102,25 @@ bool table_full(TLB_table *tlb)
     return tlb->size == tlb->capacity;
 }
 
-void print_table(TLB_table *tlb)
+/**
+ * @brief - return address that was least recently accessed in tlb table
+ *
+ * @param tbl - pointer to recency table struct to look up
+ * @param tlb - pointer to tlb table struct
+ */
+uint32_t get_least_recently_accessed_pg(recency_table *tbl, TLB_table *tlb)
 {
-    printf("Current entries in TLB table: \n");
+    int last_accessed = get_time_accessed(tbl, tlb->table[0]->address); // holds time access of the least recently accessed page
+    uint32_t least_recently_accessed_pg = tlb->table[0]->address;
+    int curr_time_accessed; // hold time access of current page that was being iterated
     for (int i = 0; i < tlb->size; i++)
     {
-        printf("%d. Address 0x%08X: %d\n", i, tlb->table[i]->address, tlb->table[i]->frame_number);
+        curr_time_accessed = get_time_accessed(tbl, tlb->table[i]->address);
+        if (curr_time_accessed < last_accessed) // update time access and address of least recently accessed page if an older one if found
+        {
+            last_accessed = curr_time_accessed;
+            least_recently_accessed_pg = tlb->table[i]->address;
+        }
     }
+    return least_recently_accessed_pg;
 }

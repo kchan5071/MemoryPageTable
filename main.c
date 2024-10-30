@@ -249,11 +249,9 @@ int main(int argc, char **argv)
               // add to TLB
                 if (table_full(tlb))
                 {
-                    uint32_t address_to_remove = get_address_of_least_recently_accessed(recent_pages_tbl, tlb);
+                    uint32_t address_to_remove = get_least_recently_accessed_pg(recent_pages_tbl, tlb);
                     // delete from TLB
                     delete_from_table(tlb, address_to_remove);
-                    // printf("Address 0x%08X removed from tlb table\n", address_to_remove);
-                    // print_table(tlb);
                 }
                 page_info = lookup_vpn2pfn(page_table, page_table->root, indices, 0, depth);
                 if (page_info) // if page was found in page table -> increment page table hits
@@ -267,8 +265,6 @@ int main(int argc, char **argv)
                     page_info = lookup_vpn2pfn(page_table, page_table->root, indices, 0, depth);
                 }
                 add_to_table(tlb, virtual_pg_num, page_info->frame_number); // add new virtual page number & its frame number into tlb table
-                // printf("Address 0x%08X added to tlb table\n", virtual_pg_num);
-                // print_table(tlb);
             }
             else // if virtual address was found in tlb table -> increment cache hits
             {
