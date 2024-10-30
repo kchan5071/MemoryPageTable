@@ -105,7 +105,7 @@ int get_index_of_least_recently_accessed(recency_table *tbl)
     int index_to_remove = 0;
     for (int i = 0; i < tbl->size; i++)
     {
-        if (tbl->table[i]->time_accessed > tbl->table[index_to_remove]->time_accessed)
+        if (tbl->table[i]->time_accessed < tbl->table[index_to_remove]->time_accessed)
         {
             index_to_remove = i;
         }
