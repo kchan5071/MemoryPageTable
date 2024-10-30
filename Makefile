@@ -37,29 +37,29 @@ run-tests:
 run:
 	make clean
 	make pagingwithatc
-	# ./pagingwithatc trace_files/trace.tr 20
-	# ./pagingwithatc trace_files/trace.tr 7 3 5 -n 1000
-	./pagingwithatc trace_files/trace.tr 7 7 7 -c 4
-	./pagingwithatc trace_files/trace.tr 2 1 10 -n 9999 -c 7
-	# ./pagingwithatc trace_files/trace.tr -o bitmasks 3 7 11
-	# ./pagingwithatc trace_files/trace.tr -o offset 4 4 12
-	# ./pagingwithatc trace_files/trace.tr -o vpn2pfn 2 8 12
-	# ./pagingwithatc trace_files/trace.tr -o va2pa 2 10 2
-	# ./pagingwithatc trace_files/trace.tr -o va2pa_atc_ptwalk 20 2 -c 10
-	# ./pagingwithatc trace_files/trace.tr 12 0 8	
-	# ./pagingwithatc trace_files/trace.tr 20 8 1
+	./pagingwithatc trace_files/trace1.tr 20
+	./pagingwithatc trace_files/trace1.tr 7 3 5 -n 1000
+	./pagingwithatc trace_files/trace1.tr 7 7 7 -c 4
+	./pagingwithatc trace_files/trace1.tr 2 1 10 -n 9999 -c 7
+	./pagingwithatc trace_files/trace1.tr -o bitmasks 3 7 11
+	./pagingwithatc trace_files/trace1.tr -o offset 4 4 12
+	./pagingwithatc trace_files/trace1.tr -o vpn2pfn 2 8 12
+	./pagingwithatc trace_files/trace1.tr -o va2pa 2 10 2
+	./pagingwithatc trace_files/trace1.tr -o va2pa_atc_ptwalk 20 2 -c 10
+	./pagingwithatc trace_files/trace1.tr 12 0 8	
+	./pagingwithatc trace_files/trace1.tr 20 8 1
 	# ./pagingwithatc trace_files/trace.tr 8 8 8 -c -1
 	# ./pagingwithatc trace_files/trace.tr 8 8 8 -n -1
-	# ./pagingwithatc trace_files/trace.tr 8 8 8 -c 20
-	# ./pagingwithatc trace_files/trace.tr 8 6 6 4
-	# ./pagingwithatc trace_files/trace.tr 8 8 4
-	# ./pagingwithatc -o bitmasks trace_files/trace.tr 4 8 8
-	# ./pagingwithatc -n 30 -o offset trace_files/trace.tr 8 8 4
-	# ./pagingwithatc -n 20 -o vpn2pfn trace_files/trace.tr 6 4 8
-	# ./pagingwithatc -n 20 -o va2pa trace_files/trace.tr 20
-	# ./pagingwithatc -n 20 -c 5 -o va2pa_atc_ptwalk trace_files/trace.tr 4 8 6
-	# ./pagingwithatc -n 8000 -o summary trace_files/trace.tr 24
-	# ./pagingwithatc trace_files/trace.tr 8 8 8
+	./pagingwithatc trace_files/trace.tr 8 8 8 -c 20
+	./pagingwithatc trace_files/trace.tr 8 6 6 4
+	./pagingwithatc trace_files/trace.tr 8 8 4
+	./pagingwithatc -o bitmasks trace_files/trace.tr 4 8 8
+	./pagingwithatc -n 30 -o offset trace_files/trace.tr 8 8 4
+	./pagingwithatc -n 20 -o vpn2pfn trace_files/trace.tr 6 4 8
+	./pagingwithatc -n 20 -o va2pa trace_files/trace.tr 20
+	./pagingwithatc -n 20 -c 5 -o va2pa_atc_ptwalk trace_files/trace.tr 4 8 6
+	./pagingwithatc -n 8000 -o summary trace_files/trace.tr 24
+	./pagingwithatc trace_files/trace.tr 8 8 8
 	make clean
 
 
