@@ -230,7 +230,7 @@ int main(int argc, char **argv)
         uint32_t *indices = get_page_indices(trace.addr, page_table->bitmask, page_table->shift, depth);
         uint32_t offset = get_offset(trace.addr, offset_size);
 
-        if (args->cache_capacity != 0)
+        if (args->cache_capacity != 0) // case: user specified cache capacity, TLB implemented
         {
             // check if the address is in the recently accessed pages
             int time_accessed = get_time_accessed(recent_pages_tbl, virtual_pg_num);
@@ -250,7 +250,7 @@ int main(int argc, char **argv)
                 if (table_full(tlb))
                 {
                     uint32_t address_to_remove = get_least_recently_accessed_pg(recent_pages_tbl, tlb);
-                    // delete from TLB
+                    // delete least recently accessed page from TLB based on records in recency table
                     delete_from_table(tlb, address_to_remove);
                 }
                 page_info = lookup_vpn2pfn(page_table, page_table->root, indices, 0, depth);
@@ -287,6 +287,7 @@ int main(int argc, char **argv)
 
         page_info = lookup_vpn2pfn(page_table, page_table->root, indices, 0, depth);
         uint32_t virtual_address = get_virtual_address(page_info->frame_number, offset, offset_size);
+
         // log accesses
         if (strcmp(args->output_mode, modes[1]) == 0)
         { // va2pa

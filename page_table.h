@@ -14,21 +14,19 @@
  * 827707836
  */
 
+// map struct containing page info
 typedef struct map
 {
-    uint32_t address;
-    int time_accessed;
-    int frame_number;
+    uint32_t address;  // virtual page number
+    int time_accessed; // the time the page was most recently accessed
+    int frame_number;  // frame number associated with the page in the page table
 } map;
+
 // tree node struct
 typedef struct node
 {
-    // int address;
-    // int time_accessed;
-    // int frame_number;
-    // array of children
-    struct node **children;
-    map *page_info;
+    struct node **children; // array of children
+    map *page_info;         // contains info about the page
 } node;
 
 // Page table struct
@@ -52,7 +50,9 @@ page_table *init_page_table(uint32_t *levels, uint32_t *bitmask, uint32_t *shift
 // build a page table from the given arguments(calls create_page_table)
 page_table *build_page_table(char **argv, int *depth, uint32_t *depth_array);
 
+// look up and return a pointer to map struct containing info of target page
 map *lookup_vpn2pfn(page_table *table, node *root, uint32_t *page_indices, int at_level, int depth);
+// insert new page in the page table
 void insert_vpn2pfn(page_table *table, node *root, uint32_t *page_indices, int at_level, int depth, int time_accessed, int *frame, uint32_t vpn);
 
 #endif

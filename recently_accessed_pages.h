@@ -8,6 +8,8 @@
  * Halie Do
  * 827707836
  */
+
+// struct stored as an entry in recency table
 typedef struct address_time_pair
 {
     uint32_t address;

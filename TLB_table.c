@@ -23,8 +23,9 @@ TLB_table *create_tlb_table(int capacity)
 /**
  * @brief - add an entry to tlb table
  *
- * @param - virtual page number to be added
- * @param - frame number associated with the virtual page number
+ * @param tlb - pointer to struct tlb table to edit
+ * @param addr - virtual page number to be added
+ * @param frame- frame number associated with the virtual page number
  */
 void add_to_table(TLB_table *tlb, uint32_t addr, int frame)
 {
@@ -32,7 +33,7 @@ void add_to_table(TLB_table *tlb, uint32_t addr, int frame)
     {
         return;
     }
-    TLB_entry *new_entry = (TLB_entry *)malloc(sizeof(TLB_entry));
+    TLB_entry *new_entry = (TLB_entry *)malloc(sizeof(TLB_entry)); // allocate space for new entry to be added to tlb table
     new_entry->address = addr;
     new_entry->frame_number = frame;
     tlb->table[tlb->size] = new_entry;
@@ -77,7 +78,7 @@ void delete_from_table(TLB_table *tlb, uint32_t address)
 /**
  * @brief - return frame number associated with given virtual page number
  *
- * @param - pointer to tlb table
+ * @param tlb - pointer to tlb table
  * @param address - address to look up
  */
 int get_frame_number(TLB_table *tlb, uint32_t address)
@@ -112,8 +113,8 @@ uint32_t get_least_recently_accessed_pg(recency_table *tbl, TLB_table *tlb)
 {
     int last_accessed = get_time_accessed(tbl, tlb->table[0]->address); // holds time access of the least recently accessed page
     uint32_t least_recently_accessed_pg = tlb->table[0]->address;
-    int curr_time_accessed; // hold time access of current page that was being iterated
-    for (int i = 0; i < tlb->size; i++)
+    int curr_time_accessed;             // hold time access of current page that was being iterated
+    for (int i = 0; i < tlb->size; i++) // for each address in tlb table
     {
         curr_time_accessed = get_time_accessed(tbl, tlb->table[i]->address);
         if (curr_time_accessed < last_accessed) // update time access and address of least recently accessed page if an older one if found

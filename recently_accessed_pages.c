@@ -13,7 +13,7 @@ recency_table *create_recency_table()
     recency_table *tbl = (recency_table *)malloc(sizeof(recency_table));
     tbl->table = (address_time_pair **)malloc(CAPACITY * sizeof(address_time_pair *));
     tbl->size = 0;
-    tbl->capacity = CAPACITY;
+    tbl->capacity = CAPACITY; // by default capacity is 10
     return tbl;
 }
 
@@ -28,9 +28,9 @@ bool update_time_accessed(recency_table *tbl, uint32_t address, int time_accesse
 {
     for (int i = 0; i < tbl->size; i++)
     {
-        if (tbl->table[i]->address == address)
+        if (tbl->table[i]->address == address) // address found
         {
-            tbl->table[i]->time_accessed = time_accessed;
+            tbl->table[i]->time_accessed = time_accessed; // update time access
             return true;
         }
     }
@@ -46,15 +46,15 @@ bool update_time_accessed(recency_table *tbl, uint32_t address, int time_accesse
  */
 void add_to_recent(recency_table *tbl, uint32_t addr, int time_accessed)
 {
-    if (tbl->size == tbl->capacity)
+    if (tbl->size == tbl->capacity) // if table is full, remove the entry with least recently accessed page
     {
         remove_oldest(tbl);
     }
     address_time_pair *new_entry = (address_time_pair *)malloc(sizeof(address_time_pair));
     new_entry->address = addr;
     new_entry->time_accessed = time_accessed;
-    tbl->table[tbl->size] = new_entry;
-    tbl->size++;
+    tbl->table[tbl->size] = new_entry; // append new page entry into recency table
+    tbl->size++;                       // increment number of elements in table
 }
 
 /**
@@ -65,7 +65,8 @@ void add_to_recent(recency_table *tbl, uint32_t addr, int time_accessed)
 void remove_oldest(recency_table *tbl)
 {
     int index_to_remove = get_index_of_least_recently_accessed(tbl);
-    free(tbl->table[index_to_remove]);
+    free(tbl->table[index_to_remove]); // free pointer to invalid address
+    // shift the rest of the elements to the left
     for (int i = index_to_remove; i < tbl->size - 1; i++)
     {
         tbl->table[i] = tbl->table[i + 1];
@@ -83,7 +84,7 @@ int get_index_of_least_recently_accessed(recency_table *tbl)
 {
     int index_to_remove = 0;
     for (int i = 0; i < tbl->size; i++)
-    {
+    { // find index of entry with least recently accessed page
         if (tbl->table[i]->time_accessed < tbl->table[index_to_remove]->time_accessed)
         {
             index_to_remove = i;
@@ -102,10 +103,10 @@ int get_time_accessed(recency_table *tbl, uint32_t addr)
 {
     for (int i = 0; i < tbl->size; i++)
     {
-        if (tbl->table[i]->address == addr)
+        if (tbl->table[i]->address == addr) // found target page
         {
-            return tbl->table[i]->time_accessed;
+            return tbl->table[i]->time_accessed; // return time it was most recently accessed
         }
     }
-    return -1;
+    return -1; // return -1 if page not found
 }

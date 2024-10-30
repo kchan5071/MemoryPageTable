@@ -73,7 +73,6 @@ page_table *build_page_table(char **argv, int *depth, uint32_t *depth_array)
     return table;
 }
 
-// TODO: fix docs
 /**
  * @brief: look up the page access in the page table
  *
@@ -83,7 +82,7 @@ page_table *build_page_table(char **argv, int *depth, uint32_t *depth_array)
  * @param at_level: the current level in the page table
  * @param depth: the number of levels in the page table
  *
- * @return: the info of page if it was in the table
+ * @return: the info of page if it was in the table, else NULL
  */
 map *lookup_vpn2pfn(page_table *table, node *root, uint32_t *page_indices, int at_level, int depth)
 {
@@ -94,10 +93,9 @@ map *lookup_vpn2pfn(page_table *table, node *root, uint32_t *page_indices, int a
         if (current->page_info->frame_number != -1)
             return current->page_info;
     }
-    // TODO: fix later
     //  recursive case
     uint32_t index = page_indices[at_level];
-    if (current->children[index] == NULL)
+    if (current->children[index] == NULL) // case: address not found
     {
         return NULL;
     }
@@ -130,10 +128,10 @@ void insert_vpn2pfn(page_table *table, node *root, uint32_t *page_indices, int a
         {
             current->page_info->address = vpn;
             current->page_info->frame_number = *frame;
-            ++(*frame);
+            ++(*frame); // dereference and increment frame number -> next page inserted will be paired with this value
         }
         current->page_info->time_accessed = time_accessed;
-        return;
+        return; // insertion completes, exit function
     }
     // recursive case
     uint32_t index = page_indices[at_level];
