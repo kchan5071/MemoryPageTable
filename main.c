@@ -164,6 +164,14 @@ static uint32_t get_offset_size(uint32_t *depth_array, int depth)
     return offset_size;
 }
 
+
+/**
+ * @brief Build a page table from the given arguments
+ * the code takes in the arguments and creates a page table
+ * and a TLB table, and a recency table if the cache capacity is not 0
+ * 
+ * it then logs the output based on the output mode
+ */
 int main(int argc, char **argv)
 {
     char modes[5][20] = {"bitmasks", "va2pa", "va2pa_atc_ptwalk", "vpn2pfn", "offset"};
@@ -200,6 +208,7 @@ int main(int argc, char **argv)
     // create TLB table
     TLB_table *tlb = create_tlb_table(args->cache_capacity);
 
+    // create recency table
     recency_table *recent_pages_tbl = create_recency_table();
 
     // create trace file and trace struct
@@ -208,7 +217,7 @@ int main(int argc, char **argv)
     // get size of offset
     int offset_size = get_offset_size(depth_array, depth);
 
-    // loop through all addresses
+    // initialize variables
     long iteration = 0;
     long cache_hits = 0;
     long page_table_hits = 0;
@@ -216,6 +225,7 @@ int main(int argc, char **argv)
     bool finish_logging = false;
     map *page_info = NULL;
 
+    // loop through all addresses
     while (NextAddress(trace_file, &trace))
     {
         bool pg_hit = false;
@@ -328,5 +338,14 @@ int main(int argc, char **argv)
                     frame_number,
                     page_table->num_of_entries);
     }
+
+    // free memory
+    free(depth_array);
+    free(args);
+    fclose(trace_file);
+    free_page_table(page_table);
+    free_tlb_table(tlb);
+    free_recency_table(recent_pages_tbl);
+    
     return 0;
 }
